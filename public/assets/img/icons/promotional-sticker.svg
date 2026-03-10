@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  
+  <!-- Starburst Shape -->
+  <polygon 
+    points="100,10 120,60 180,60 135,95 155,150 100,115 45,150 65,95 20,60 80,60"
+    fill="black"/>
+
+  <!-- Text -->
+  <text x="100" y="105" 
+        text-anchor="middle" 
+        font-size="28" 
+        font-family="Arial, sans-serif" 
+        fill="white" 
+        font-weight="bold">
+    SALE
+  </text>
+
+</svg>
