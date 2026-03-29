@@ -1,814 +1,460 @@
 @extends('frontend.layouts.master')
 @section('body-class', 'no-navbar-scroll')
 @section('contents')
-  <style>
-    .page{
-      padding-bottom: 66px;
-      min-height:100vh;
-    }
+@push('styles')
+<style>
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; }
 
-    .stepper{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      margin:2rem 0 1.5rem;
-      padding:0 1rem;
-      gap:1rem;
-      height:120px;
-    }
-    .stepper-image{
-      max-width:400px;
-      width:100%;
-      height:auto;
-      max-height:80px;
-      object-fit:contain;
-    }
-    .stepper-labels{
-      display:flex;
-      justify-content:space-between;
-      width:100%;
-      max-width:400px;
-    }
-    .step-label{
-      font-size:.95rem;
-      color:var(--muted);
-      letter-spacing:.5px;
-      text-align:center;
-      flex:1;
-    }
-    .step-label.active{
-      color:var(--primary-blue);
-      font-weight:700;
-    }
+    .cart-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem clamp(1rem, 3vw, 3rem) 5rem; }
+    .cart-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(7,32,63,0.08); }
+    .cart-header h1 { font-family: var(--font-primary); font-size: 1.8rem; font-weight: 400; letter-spacing: 3px; color: var(--primary-blue); text-transform: uppercase; }
+    .cart-count-badge { font-family: var(--font-secondary); font-size: .75rem; letter-spacing: 2px; color: rgba(2,0,13,0.45); text-transform: uppercase; }
 
-    .container{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 clamp(1rem, 3vw, 2rem);
-    }
+    .cart-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
+    .cart-items { display: flex; flex-direction: column; }
 
-    .cart-list{
-      display:flex;
-      flex-direction:column;
-      gap:1rem;
-    }
+    .cart-item { display: grid; grid-template-columns: 110px 1fr auto; gap: 1.25rem; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(7,32,63,0.07); }
+    .cart-item:first-child { border-top: 1px solid rgba(7,32,63,0.07); }
+    .cart-img { width: 110px; height: 130px; background: #f7f7f7; overflow: hidden; flex-shrink: 0; }
+    .cart-img img { width: 100%; height: 100%; object-fit: cover; }
 
-    .cart-item{
-      display:grid;
-      grid-template-columns:84px 1fr auto;
-      gap:14px;
-      border:1px solid var(--border);
-      padding:14px;
-      background:#fafafa;
-      border-radius:14px;
-    }
-    .cart-img{
-      width:84px;height:84px;
-      border-radius:12px;
-      background:#eee;
-      border:1px solid rgba(7,32,63,.10);
-      overflow:hidden;
-    }
-    .cart-img img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-    .cart-info h4{
-      font-family:var(--font-primary);
-      color:var(--primary-blue);
-      font-size:1.1rem;
-      font-weight:600;
-      letter-spacing:.5px;
-    }
-    .price-container{
-      margin:.35rem 0 .25rem;
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-      flex-wrap:wrap;
-    }
-    .price{
-      font-weight:800;
-      color:var(--dark);
-    }
-    .original-price{
-      font-size:.9rem;
-      color:var(--muted);
-      text-decoration:line-through;
-    }
-    .discount{
-      font-size:.75rem;
-      color:#27ae60;
-      font-weight:700;
-    }
-    .product-code{
-      font-size:.75rem;
-      color:var(--muted);
-      margin-top:.25rem;
-    }
-    .delivery-info{
-      font-size:.8rem;
-      color:var(--muted);
-      margin-top:.25rem;
-    }
-    .qty{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      background:#fff;
-      border:1px solid var(--border);
-      padding:.35rem .5rem;
-      border-radius:12px;
-      width:max-content;
-      margin-top:.5rem;
-    }
-    .qty button{
-      width:28px;height:28px;
-      border:1px solid rgba(7,32,63,.16);
-      background:#fff;
-      border-radius:10px;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-    .qty button:hover{
-      background:var(--primary-blue);
-      color:#fff;
-    }
-    .qty span{min-width:18px;text-align:center;font-weight:700;color:var(--primary-blue)}
+    .cart-info { min-width: 0; }
+    .cart-category { font-family: var(--font-secondary); font-size: .65rem; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(7,32,63,0.4); margin-bottom: 4px; }
+    .cart-name { font-family: var(--font-primary); font-size: 1.1rem; color: var(--primary-blue); margin-bottom: 4px; line-height: 1.3; }
+    .cart-code { font-family: var(--font-secondary); font-size: .7rem; letter-spacing: 1.5px; color: rgba(2,0,13,0.35); text-transform: uppercase; margin-bottom: 10px; }
+    .cart-variant { font-family: var(--font-secondary); font-size: .75rem; color: rgba(2,0,13,0.5); margin-bottom: 10px; }
 
-    .cart-actions{
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:.5rem;
-    }
-    .remove{
-      font-size:.82rem;
-      color:var(--muted);
-      cursor:pointer;
-      user-select:none;
-    }
-    .remove:hover{color:var(--primary-blue);text-decoration:underline}
+    .qty-row { display: flex; align-items: center; border: 1px solid rgba(7,32,63,0.18); width: fit-content; }
+    .qty-btn { width: 32px; height: 32px; background: var(--white); border: none; cursor: pointer; font-size: 1rem; color: var(--primary-blue); display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .qty-btn:hover { background: rgba(7,32,63,0.05); }
+    .qty-input { width: 40px; height: 32px; border: none; border-left: 1px solid rgba(7,32,63,0.18); border-right: 1px solid rgba(7,32,63,0.18); text-align: center; font-size: .9rem; color: var(--primary-blue); font-weight: 700; outline: none; background: var(--white); }
 
-    .coupon{
-      margin-top:1rem;
-      border:1px dashed rgba(7,32,63,.22);
-      padding:.9rem 1rem;
-      background:rgba(235,222,212,.7);
-      text-align:center;
-      font-size:.9rem;
-      border-radius:14px;
-      color:rgba(2,0,13,.75);
-      cursor:pointer;
-      transition:.2s ease;
-    }
-    .coupon:hover{
-      background:rgba(235,222,212,.9);
-    }
+    .cart-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 90px; }
+    .cart-item-price { font-family: var(--font-primary); font-size: 1.1rem; font-weight: 700; color: var(--primary-blue); }
+    .cart-unit-price { font-family: var(--font-secondary); font-size: .72rem; color: rgba(2,0,13,0.4); letter-spacing: .5px; }
+    .cart-remove { background: none; border: none; cursor: pointer; color: rgba(2,0,13,0.35); font-size: .8rem; display: flex; align-items: center; gap: 5px; padding: 4px 0; transition: color .2s; font-family: var(--font-secondary); letter-spacing: 1px; text-transform: uppercase; }
+    .cart-remove:hover { color: #e74c3c; }
 
-    .pickup{
-      margin-top:1rem;
-      border:1px solid var(--border);
-      padding:.9rem 1rem;
-      font-size:.9rem;
-      border-radius:14px;
-      background:#fff;
-      color:rgba(2,0,13,.75);
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-    }
-    .pickup i{
-      color:var(--primary-blue);
-    }
-    .pickup .tag{
-      margin-left:auto;
-      font-size:.75rem;
-      color:var(--muted);
-    }
+    .cart-summary { background: var(--white); border: 1px solid rgba(7,32,63,0.08); padding: 1.5rem; position: sticky; top: 160px; }
+    .summary-title { font-family: var(--font-secondary); font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--primary-blue); font-weight: 700; margin-bottom: 1.25rem; padding-bottom: .75rem; border-bottom: 1px solid rgba(7,32,63,0.08); }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-secondary); font-size: .85rem; color: rgba(2,0,13,0.7); margin-bottom: .75rem; }
+    .summary-row.total { font-size: 1rem; font-weight: 800; color: var(--primary-blue); padding-top: .75rem; margin-top: .5rem; border-top: 1px solid rgba(7,32,63,0.08); margin-bottom: 1.25rem; }
+    .free { color: #27ae60; font-weight: 700; }
 
-    .usp{
-      display:flex;
-      justify-content:center;
-      margin:1.5rem 0 0;
-      font-size:.85rem;
-      color:var(--muted);
-      gap:2rem;
-      flex-wrap:wrap;
-    }
-    .usp span{
-      display:flex;align-items:center;gap:.5rem;
-      border:1px solid rgba(7,32,63,.10);
-      background:#fff;
-      padding:.65rem .8rem;
-      border-radius:999px;
-    }
-    .usp i{color:var(--primary-blue)}
+    .coupon-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+    .coupon-input { flex: 1; padding: 10px 12px; border: 1px solid rgba(7,32,63,0.2); font-size: .82rem; outline: none; font-family: var(--font-secondary); letter-spacing: 1px; text-transform: uppercase; }
+    .coupon-apply { padding: 10px 14px; background: var(--primary-blue); color: var(--white); border: none; cursor: pointer; font-family: var(--font-secondary); font-size: .75rem; letter-spacing: 1.5px; text-transform: uppercase; }
+    .coupon-apply:hover { filter: brightness(.9); }
 
-    /* ================= ADD MORE ITEMS SECTION ================= */
-    .add-more-section{
-      margin-top:2.5rem;
-      margin-bottom:2rem;
-    }
-    .add-more-title{
-      font-family:var(--font-primary);
-      font-size:1.4rem;
-      font-weight:700;
-      text-align:center;
-      color:var(--primary-blue);
-      margin-bottom:1.5rem;
-      letter-spacing:.5px;
-    }
-    .product-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:1.25rem;
-    }
-    .product-card{
-      border:1px solid var(--border);
-      border-radius:14px;
-      overflow:hidden;
-      background:#fff;
-      transition:.25s ease;
-      cursor:pointer;
-    }
-    .product-card:hover{
-      box-shadow:var(--shadow);
-      transform:translateY(-4px);
-    }
-    .product-image{
-      width:100%;
-      aspect-ratio:1;
-      background:#f5f5f5;
-      border-bottom:1px solid var(--border);
-    }
-    .product-info{
-      padding:1rem;
-      text-align:center;
-    }
-    .product-name{
-      font-family:var(--font-primary);
-      font-size:1rem;
-      font-weight:600;
-      color:var(--primary-blue);
-      margin-bottom:.5rem;
-    }
-    .product-price{
-      font-weight:800;
-      color:var(--dark);
-      font-size:.95rem;
-    }
+    .btn-checkout { width: 100%; padding: 1rem; background: var(--primary-blue); color: var(--white); border: none; cursor: pointer; font-family: var(--font-secondary); font-size: .82rem; letter-spacing: 2px; text-transform: uppercase; transition: .25s; margin-bottom: .75rem; }
+    .btn-checkout:hover { filter: brightness(.92); }
+    .btn-continue { display: block; text-align: center; width: 100%; padding: .85rem; border: 1px solid rgba(7,32,63,0.2); background: var(--white); color: var(--primary-blue); font-family: var(--font-secondary); font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; }
+    .btn-continue:hover { background: rgba(7,32,63,0.04); }
 
-    /* ================= STICKY FOOTER CTA ================= */
-    .cart-footer{
-      position:fixed;bottom:0;left:0;width:100%;
-      background:rgba(255,255,255,.95);
-      backdrop-filter:blur(8px);
-      border-top:1px solid var(--border);
-      padding:.75rem 1rem;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:1rem;
-      z-index:9996;
-      box-shadow:0 -4px 12px rgba(0,0,0,.06);
-    }
-    .total{
-      font-weight:900;
-      color:var(--primary-blue);
-      letter-spacing:.2px;
-    }
-    .checkout{
-      padding:.85rem 1.25rem;
-      background:var(--primary-blue);
-      color:#fff;
-      border:none;
-      border-radius:12px;
-      text-transform:uppercase;
-      letter-spacing:1.2px;
-      font-size:.85rem;
-      cursor:pointer;
-      transition:.25s ease;
-      white-space:nowrap;
-    }
-    .checkout:hover{
-      background:#050f21;
-      transform:scale(1.02);
-    }
+    .cart-empty { text-align: center; padding: 5rem 1rem; color: rgba(2,0,13,0.4); }
+    .cart-empty i { font-size: 3rem; display: block; margin-bottom: 1rem; color: rgba(7,32,63,0.12); }
+    .cart-empty p { font-family: var(--font-secondary); font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.5rem; }
 
-    /* ================= TOAST NOTIFICATION ================= */
-    .toast{
-      position:fixed;
-      bottom:100px;
-      right:20px;
-      background:var(--primary-blue);
-      color:#fff;
-      padding:1rem 1.5rem;
-      border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,.15);
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-      opacity:0;
-      transform:translateY(20px);
-      transition:all .3s ease;
-      z-index:10000;
-      max-width:350px;
-      font-size:.9rem;
+    .cart-usp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(7,32,63,0.06); }
+    .usp-item { text-align: center; font-family: var(--font-secondary); font-size: .72rem; letter-spacing: 1px; color: rgba(2,0,13,0.55); text-transform: uppercase; }
+    .usp-item i { display: block; font-size: 1.2rem; color: var(--primary-blue); margin-bottom: 6px; }
+
+    .toast { position: fixed; right: 16px; bottom: 16px; background: var(--primary-blue); color: var(--white); padding: 12px 16px; font-size: .88rem; box-shadow: 0 10px 24px rgba(7,32,63,0.2); transform: translateY(18px); opacity: 0; pointer-events: none; transition: .25s ease; z-index: 3000; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 900px) { .cart-layout { grid-template-columns: 1fr; } .cart-summary { position: static; } }
+    @media (max-width: 560px) {
+        .cart-item { grid-template-columns: 90px 1fr; }
+        .cart-right { flex-direction: row; align-items: center; grid-column: 1 / -1; justify-content: space-between; }
+        .cart-img { width: 90px; height: 110px; }
+        .cart-usp { grid-template-columns: 1fr; }
     }
-    .toast.show{
-      opacity:1;
-      transform:translateY(0);
-    }
-    .toast i{
-      font-size:1.2rem;
-    }
-    .toast.success{
-      background:#27ae60;
-    }
-    .toast.error{
-      background:#e74c3c;
-    }
-    .toast.info{
-      background:#3498db;
-    }
+</style>
+@endpush
 
-    /* ================= RESPONSIVE ================= */
-    @media (max-width: 768px){
-      .nav-container{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding:.9rem 1.25rem;
-      }
-      .hamburger{display:flex;width:44px}
-      .nav-left{display:none}
-      .nav-right{gap:1rem;width:86px;justify-content:flex-end}
-      .nav-center{
-        position:absolute;
-        left:50%;
-        transform:translateX(-50%);
-      }
-      .nav-logo img{height:54px}
-      .nav-links-container{display:none}
-      
-      .product-grid{
-        grid-template-columns:repeat(2, 1fr);
-      }
+<div style="padding-top: 155px;">
+<div class="cart-wrap">
 
-      .usp{
-        gap:1rem;
-      }
-      
-      .stepper{
-        height:100px;
-      }
-      .stepper-image{
-        max-width:300px;
-        max-height:65px;
-      }
-      .step-label{
-        font-size:.85rem;
-      }
-    }
-
-    @media (max-width: 560px){
-      .stepper{
-        height:90px;
-      }
-      .stepper-image{
-        max-width:280px;
-        max-height:55px;
-      }
-      .step-label{
-        font-size:.8rem;
-      }
-      .cart-item{
-        grid-template-columns:72px 1fr;
-        grid-template-areas:
-          "img info"
-          "actions actions";
-      }
-      .cart-img{grid-area:img;width:72px;height:72px}
-      .cart-info{grid-area:info}
-      .cart-actions{
-        grid-area:actions;
-        flex-direction:row;
-        align-items:center;
-        justify-content:space-between;
-        border-top:1px solid rgba(7,32,63,.10);
-        padding-top:.75rem;
-        margin-top:.5rem;
-      }
-      .checkout{padding:.85rem 1rem}
-      
-      .toast{
-        left:10px;
-        right:10px;
-        max-width:calc(100% - 20px);
-        bottom:90px;
-      }
-    }
-  </style>
-<body>
-  <main class="page">
-    <div class="container">
-      <!-- STEPS -->
-      <div class="stepper">
-        <img src="./assets/23.png" alt="Order Progress" class="stepper-image" />
-        <div class="stepper-labels">
-          <span class="step-label active">Bag</span>
-          <span class="step-label">Order Details</span>
-          <span class="step-label">Payment</span>
-        </div>
-      </div>
-
-      <!-- CART ITEMS -->
-      <section class="cart-list" aria-label="Cart items">
-        <div class="cart-item">
-          <div class="cart-img" aria-hidden="true">
-            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300&h=300&fit=crop" alt="Elegant Silver Ring" />
-          </div>
-          <div class="cart-info">
-            <h4>Elegant Silver Ring</h4>
-            <div class="price-container">
-              <span class="price">₹24,999</span>
-              <span class="original-price">₹29,999</span>
-              <span class="discount">(17% OFF)</span>
-            </div>
-            <div class="product-code">Product Code: ESR-2024-001</div>
-            <div class="delivery-info">Delivery by 2047</div>
-            <div class="qty" aria-label="Quantity selector">
-              <button type="button" aria-label="Decrease quantity">-</button>
-              <span>1</span>
-              <button type="button" aria-label="Increase quantity">+</button>
-            </div>
-          </div>
-          <div class="cart-actions">
-            <span class="remove" role="button" tabindex="0">Remove</span>
-          </div>
-        </div>
-
-        <div class="cart-item">
-          <div class="cart-img" aria-hidden="true">
-            <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&h=300&fit=crop" alt="Drop Earrings" />
-          </div>
-          <div class="cart-info">
-            <h4>Drop Earrings</h4>
-            <div class="price-container">
-              <span class="price">₹12,999</span>
-              <span class="original-price">₹15,999</span>
-              <span class="discount">(19% OFF)</span>
-            </div>
-            <div class="product-code">Product Code: DE-2024-045</div>
-            <div class="delivery-info">Delivery by 2047</div>
-            <div class="qty" aria-label="Quantity selector">
-              <button type="button" aria-label="Decrease quantity">-</button>
-              <span>1</span>
-              <button type="button" aria-label="Increase quantity">+</button>
-            </div>
-          </div>
-          <div class="cart-actions">
-            <span class="remove" role="button" tabindex="0">Remove</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- COUPON -->
-      <div class="coupon">
-        <i class="fas fa-ticket-alt"></i>
-        Apply Coupon • View all offers
-      </div>
-
-      <!-- PICKUP -->
-      <div class="pickup">
-        <i class="fas fa-store"></i>
-        <span>Pick up from store</span>
-        <span class="tag">only for Kolkata's pincode</span>
-      </div>
-
-      <!-- USP -->
-      <div class="usp">
-        <span><i class="fa-solid fa-lock"></i> Secure Payment</span>
-        <span><i class="fa-solid fa-rotate-left"></i> Easy Exchange</span>
-      </div>
-
-      <!-- ADD MORE ITEMS SECTION -->
-      <section class="add-more-section">
-        <h3 class="add-more-title">ADD MORE ITEMS</h3>
-        <div class="product-grid">
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop" alt="Gold Necklace" style="width:100%;height:100%;object-fit:cover;" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Gold Necklace</div>
-              <div class="product-price">₹34,999</div>
-            </div>
-          </div>
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop" alt="Diamond Bracelet" style="width:100%;height:100%;object-fit:cover;" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Diamond Bracelet</div>
-              <div class="product-price">₹45,999</div>
-            </div>
-          </div>
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop" alt="Pearl Earrings" style="width:100%;height:100%;object-fit:cover;" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Pearl Earrings</div>
-              <div class="product-price">₹18,999</div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div class="cart-header">
+        <h1>My Cart</h1>
+        <span class="cart-count-badge" id="cartItemCount">
+            {{ $items->count() }} {{ Str::plural('item', $items->count()) }}
+        </span>
     </div>
-  </main>
 
-  <!-- STICKY FOOTER -->
-  <div class="cart-footer" role="region" aria-label="Cart total and checkout">
-    <div class="total">Total: ₹37,998</div>
-    <button class="checkout" type="button">Proceed</button>
-  </div>
+    @if($items->count())
 
-  <!-- TOAST NOTIFICATION -->
-  <div class="toast" id="toast">
-    <i class="fas fa-check-circle"></i>
-    <span id="toast-message"></span>
-  </div>
+    <div class="cart-layout">
 
-  <script>
+        {{-- ── Items ── --}}
+        <div class="cart-items" id="cartItemsContainer">
+            @foreach($items as $item)
+                @php
+                    $product  = $item->product;
+                    $thumb    = $product?->images->first()?->image ?? null;
+                    $thumbUrl = $thumb
+                        ? asset('public/storage/' . $thumb)
+                        : 'https://via.placeholder.com/220x260?text=No+Image';
+                @endphp
 
-    // ============================================================
-    // CART FUNCTIONALITY
-    // ============================================================
-    
-    // Toast notification function
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      const toastMessage = document.getElementById('toast-message');
-      const toastIcon = toast.querySelector('i');
-      
-      // Set message
-      toastMessage.textContent = message;
-      
-      // Set icon and type
-      toast.className = 'toast';
-      if (type === 'success') {
-        toast.classList.add('success');
-        toastIcon.className = 'fas fa-check-circle';
-      } else if (type === 'error') {
-        toast.classList.add('error');
-        toastIcon.className = 'fas fa-exclamation-circle';
-      } else if (type === 'info') {
-        toast.classList.add('info');
-        toastIcon.className = 'fas fa-info-circle';
-      }
-      
-      // Show toast
-      toast.classList.add('show');
-      
-      // Hide after 3 seconds
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-    
-    // Cart data structure
-    let cartItems = [
-      { 
-        id: 1, 
-        name: "Elegant Silver Ring", 
-        price: 24999, 
-        originalPrice: 29999,
-        productCode: "ESR-2024-001",
-        quantity: 1, 
-        image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300&h=300&fit=crop" 
-      },
-      { 
-        id: 2, 
-        name: "Drop Earrings", 
-        price: 12999, 
-        originalPrice: 15999,
-        productCode: "DE-2024-045",
-        quantity: 1, 
-        image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&h=300&fit=crop" 
-      }
-    ];
+                <div class="cart-item" id="cart-row-{{ $item->id }}">
 
-    // Update cart total
-    function updateCartTotal() {
-      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      document.querySelector('.total').textContent = `Total: ₹${total.toLocaleString('en-IN')}`;
-    }
+                    <a href="{{ route('frontend.product-details', $product->id) }}">
+                        <div class="cart-img">
+                            <img src="{{ $thumbUrl }}"
+                                 alt="{{ $product->base_name }}" loading="lazy">
+                        </div>
+                    </a>
 
-    // Quantity buttons functionality
-    document.addEventListener('click', (e) => {
-      // Handle quantity increase
-      if (e.target.matches('.qty button[aria-label="Increase quantity"]')) {
-        const cartItem = e.target.closest('.cart-item');
-        const index = Array.from(document.querySelectorAll('.cart-item')).indexOf(cartItem);
-        const qtySpan = cartItem.querySelector('.qty span');
-        
-        cartItems[index].quantity++;
-        qtySpan.textContent = cartItems[index].quantity;
-        updateCartTotal();
-        
-        // Add visual feedback
-        qtySpan.style.transform = 'scale(1.2)';
-        setTimeout(() => qtySpan.style.transform = 'scale(1)', 200);
-        
-        // Show toast
-        showToast('Quantity updated', 'success');
-      }
+                    <div class="cart-info">
+                        <div class="cart-category">
+                            {{ $product->pearlType?->name ?? 'Jewellery' }}
+                        </div>
+                        <a href="{{ route('frontend.product-details', $product->id) }}">
+                            <div class="cart-name">{{ $product->base_name }}</div>
+                        </a>
+                        <div class="cart-code">SKU: {{ $product->product_code }}</div>
 
-      // Handle quantity decrease
-      if (e.target.matches('.qty button[aria-label="Decrease quantity"]')) {
-        const cartItem = e.target.closest('.cart-item');
-        const index = Array.from(document.querySelectorAll('.cart-item')).indexOf(cartItem);
-        const qtySpan = cartItem.querySelector('.qty span');
-        
-        if (cartItems[index].quantity > 1) {
-          cartItems[index].quantity--;
-          qtySpan.textContent = cartItems[index].quantity;
-          updateCartTotal();
-          
-          // Add visual feedback
-          qtySpan.style.transform = 'scale(0.8)';
-          setTimeout(() => qtySpan.style.transform = 'scale(1)', 200);
-          
-          // Show toast
-          showToast('Quantity updated', 'success');
-        }
-      }
+                        @if($item->variant)
+                            <div class="cart-variant">
+                                Finish: {{ $item->variant->finish }}
+                            </div>
+                        @endif
 
-      // Handle remove button
-      if (e.target.matches('.remove')) {
-        const cartItem = e.target.closest('.cart-item');
-        const index = Array.from(document.querySelectorAll('.cart-item')).indexOf(cartItem);
-        const itemName = cartItems[index].name;
-        
-        // Fade out animation
-        cartItem.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        cartItem.style.opacity = '0';
-        cartItem.style.transform = 'translateX(-20px)';
-        
-        setTimeout(() => {
-          cartItems.splice(index, 1);
-          cartItem.remove();
-          updateCartTotal();
-          
-          // Show toast
-          showToast(`${itemName} removed from cart`, 'info');
-          
-          // Check if cart is empty
-          if (cartItems.length === 0) {
-            document.querySelector('.cart-list').innerHTML = `
-              <div style="text-align:center;padding:3rem 1rem;color:var(--muted);">
-                <i class="fas fa-shopping-bag" style="font-size:3rem;margin-bottom:1rem;opacity:0.3;"></i>
-                <p style="font-size:1.1rem;">Your cart is empty</p>
-                <p style="font-size:0.9rem;margin-top:0.5rem;">Add some beautiful jewelry to get started!</p>
-              </div>
-            `;
-            document.querySelector('.checkout').disabled = true;
-            document.querySelector('.checkout').style.opacity = '0.5';
-            document.querySelector('.checkout').style.cursor = 'not-allowed';
-          }
-        }, 300);
-      }
+                        <div class="qty-row">
+                            <button class="qty-btn qty-minus"
+                                    data-item-id="{{ $item->id }}"
+                                    data-url="{{ route('cart.updateQuantity') }}">−</button>
+                            <input  class="qty-input"
+                                    type="number"
+                                    value="{{ $item->quantity }}"
+                                    min="1" max="99"
+                                    id="qty-{{ $item->id }}"
+                                    readonly>
+                            <button class="qty-btn qty-plus"
+                                    data-item-id="{{ $item->id }}"
+                                    data-url="{{ route('cart.updateQuantity') }}">+</button>
+                        </div>
+                    </div>
 
-      // Handle checkout button
-      if (e.target.matches('.checkout')) {
-        if (cartItems.length > 0) {
-          showToast('Proceeding to order details...', 'success');
-          // In a real app: setTimeout(() => window.location.href = '/checkout', 1000);
-        }
-      }
+                    <div class="cart-right">
+                        <div>
+                            <div class="cart-item-price" id="subtotal-{{ $item->id }}">
+                                ₹{{ number_format($item->total_price) }}
+                            </div>
+                            <div class="cart-unit-price">
+                                ₹{{ number_format($item->price) }} each
+                            </div>
+                        </div>
+                        <button class="cart-remove"
+                                data-item-id="{{ $item->id }}"
+                                data-product-id="{{ $product->id }}"
+                                data-url="{{ route('cart.destroy') }}">
+                            <i class="fa-solid fa-trash-can"></i> Remove
+                        </button>
+                    </div>
 
-      // Handle coupon section
-      if (e.target.matches('.coupon') || e.target.closest('.coupon')) {
-        showToast('Coupon feature coming soon!', 'info');
-        // In a real app: open coupon modal
-      }
-
-      // Handle product cards in "Add More Items"
-      if (e.target.closest('.product-card')) {
-        const card = e.target.closest('.product-card');
-        const productName = card.querySelector('.product-name').textContent;
-        const productPrice = card.querySelector('.product-price').textContent;
-        const productImage = card.querySelector('.product-image img').src;
-        
-        // Parse price (remove ₹ and commas)
-        const price = parseInt(productPrice.replace(/[₹,]/g, ''));
-        
-        // Generate product code
-        const productCode = productName.toUpperCase().replace(/\s+/g, '-').substring(0, 10) + '-' + Math.floor(Math.random() * 1000);
-        
-        // Check if item already exists in cart
-        const existingItemIndex = cartItems.findIndex(item => item.name === productName);
-        
-        if (existingItemIndex !== -1) {
-          // Item exists, increase quantity
-          cartItems[existingItemIndex].quantity++;
-          
-          // Update the quantity display in the cart
-          const cartItemElements = document.querySelectorAll('.cart-item');
-          if (cartItemElements[existingItemIndex]) {
-            const qtySpan = cartItemElements[existingItemIndex].querySelector('.qty span');
-            qtySpan.textContent = cartItems[existingItemIndex].quantity;
-            
-            // Visual feedback
-            qtySpan.style.transform = 'scale(1.3)';
-            setTimeout(() => qtySpan.style.transform = 'scale(1)', 300);
-          }
-          
-          showToast(`${productName} quantity increased!`, 'success');
-        } else {
-          // New item, add to cart
-          const newItem = {
-            id: cartItems.length + 1,
-            name: productName,
-            price: price,
-            originalPrice: Math.floor(price * 1.2), // 20% markup for original price
-            productCode: productCode,
-            quantity: 1,
-            image: productImage
-          };
-          
-          cartItems.push(newItem);
-          
-          // Create and add new cart item HTML
-          const cartList = document.querySelector('.cart-list');
-          const discount = Math.round(((newItem.originalPrice - newItem.price) / newItem.originalPrice) * 100);
-          
-          const newCartItemHTML = `
-            <div class="cart-item" style="opacity:0;transform:translateY(20px);">
-              <div class="cart-img" aria-hidden="true">
-                <img src="${newItem.image}" alt="${newItem.name}" />
-              </div>
-              <div class="cart-info">
-                <h4>${newItem.name}</h4>
-                <div class="price-container">
-                  <span class="price">₹${newItem.price.toLocaleString('en-IN')}</span>
-                  <span class="original-price">₹${newItem.originalPrice.toLocaleString('en-IN')}</span>
-                  <span class="discount">(${discount}% OFF)</span>
                 </div>
-                <div class="product-code">Product Code: ${newItem.productCode}</div>
-                <div class="delivery-info">Delivery by 2047</div>
-                <div class="qty" aria-label="Quantity selector">
-                  <button type="button" aria-label="Decrease quantity">-</button>
-                  <span>1</span>
-                  <button type="button" aria-label="Increase quantity">+</button>
-                </div>
-              </div>
-              <div class="cart-actions">
-                <span class="remove" role="button" tabindex="0">Remove</span>
-              </div>
+            @endforeach
+        </div>
+
+        {{-- ── Summary ── --}}
+        <div class="cart-summary">
+            <div class="summary-title">Order Summary</div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="summarySubtotal">₹{{ number_format($subtotal) }}</span>
             </div>
-          `;
-          
-          cartList.insertAdjacentHTML('beforeend', newCartItemHTML);
-          
-          // Animate the new item in
-          const newCartItem = cartList.lastElementChild;
-          setTimeout(() => {
-            newCartItem.style.transition = 'all 0.3s ease';
-            newCartItem.style.opacity = '1';
-            newCartItem.style.transform = 'translateY(0)';
-          }, 10);
-          
-          showToast(`${productName} added to cart!`, 'success');
-        }
-        
-        // Update total
-        updateCartTotal();
-        
-        // Add pulse animation to card
-        card.style.animation = 'pulse 0.3s ease';
-        setTimeout(() => card.style.animation = '', 300);
-      }
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="summaryShipping">
+                    @if($shipping == 0)
+                        <span class="free">Free</span>
+                    @else
+                        ₹{{ number_format($shipping) }}
+                    @endif
+                </span>
+            </div>
+            @if($subtotal > 0 && $subtotal < 999)
+                <div style="font-size:.75rem; color:rgba(2,0,13,0.45); margin-bottom:.75rem; font-family:var(--font-secondary);">
+                    Add ₹{{ number_format(999 - $subtotal) }} more for free shipping
+                </div>
+            @endif
+
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="summaryTotal">₹{{ number_format($total) }}</span>
+            </div>
+
+            <div class="coupon-row">
+                <input class="coupon-input" type="text"
+                       id="couponCode" placeholder="COUPON CODE">
+                <button class="coupon-apply" id="couponApplyBtn">Apply</button>
+            </div>
+
+            <button class="btn-checkout" id="checkoutBtn">
+                Proceed to Checkout
+            </button>
+            <a href="{{ route('collection.show') }}" class="btn-continue">
+                Continue Shopping
+            </a>
+
+            <div class="cart-usp">
+                <div class="usp-item">
+                    <i class="fa-solid fa-rotate-left"></i>30 Day Returns
+                </div>
+                <div class="usp-item">
+                    <i class="fa-solid fa-truck"></i>Free over ₹999
+                </div>
+                <div class="usp-item">
+                    <i class="fa-solid fa-lock"></i>Secure Checkout
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @else
+        <div class="cart-empty">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <p>Your cart is empty</p>
+            <a href="{{ route('collection.show') }}"
+               style="display:inline-block; padding:12px 32px; background:var(--primary-blue); color:var(--white); font-family:var(--font-secondary); font-size:.78rem; letter-spacing:2px; text-transform:uppercase;">
+                Browse Collections
+            </a>
+        </div>
+    @endif
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+@push('scripts')
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Navbar ────────────────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    if (navbar) navbar.classList.add('scrolled');
+
+    // ── Logo ──────────────────────────────────────────────────
+    const navLogo = document.getElementById('navLogo');
+    if (navLogo) {
+        navLogo.src = '{{ asset("public/assets/logo_new_1.png") }}';
+        navLogo.setAttribute('data-src', '{{ asset("public/assets/logo_new_1.png") }}');
+    }
+
+});
+
+// ── Globals ───────────────────────────────────────────────────────────────
+document.body.classList.add('no-navbar-scroll');
+
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+const toast     = document.getElementById('toast');
+
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+function formatINR(n) {
+    const num = parseFloat(String(n).replace(/,/g, ''));
+    if (isNaN(num)) return '₹0';
+    return '₹' + num.toLocaleString('en-IN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
     });
+}
+function updateNavCount(count) {
+    const el = document.getElementById('cartCount');
+    if (el) el.textContent = count || '';
+}
+function updateSummary(data) {
+    const sub   = document.getElementById('summarySubtotal');
+    const ship  = document.getElementById('summaryShipping');
+    const total = document.getElementById('summaryTotal');
+    const badge = document.getElementById('cartItemCount');
 
-    // Add CSS animation for pulse effect
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(0.95); }
-      }
-      .qty span {
-        transition: transform 0.2s ease;
-      }
-    `;
-    document.head.appendChild(style);
+    if (sub)   sub.textContent   = formatINR(data.cart_total);
+    if (total) total.textContent = formatINR(data.grand_total);
+    if (ship)  ship.innerHTML    = data.shipping == 0
+        ? '<span class="free">Free</span>'
+        : formatINR(data.shipping);
+    if (badge) {
+        const c = data.cart_count;
+        badge.textContent = c + ' ' + (c == 1 ? 'item' : 'items');
+    }
+    updateNavCount(data.cart_count);
+}
 
-    // Initialize total on page load
-    updateCartTotal();
-  </script>
+// ── Quantity +/- ──────────────────────────────────────────────────────────
+function updateQty(itemId, newQty, url) {
+    fetch(url, {
+        method:  'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept':       'application/json',
+        },
+        body: JSON.stringify({ cart_item_id: itemId, quantity: newQty }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.redirect) { window.location.href = data.redirect; return; }
+        if (data.success) {
+            document.getElementById('qty-' + itemId).value            = newQty;
+            document.getElementById('subtotal-' + itemId).textContent = formatINR(data.item_subtotal);
+            updateSummary(data);
+        }
+    })
+    .catch(() => showToast('Something went wrong.'));
+}
+
+document.querySelectorAll('.qty-minus').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const id  = this.dataset.itemId;
+        const qty = parseInt(document.getElementById('qty-' + id).value);
+        if (qty <= 1) return;
+        updateQty(id, qty - 1, this.dataset.url);
+    });
+});
+document.querySelectorAll('.qty-plus').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const id  = this.dataset.itemId;
+        const qty = parseInt(document.getElementById('qty-' + id).value);
+        if (qty >= 99) return;
+        updateQty(id, qty + 1, this.dataset.url);
+    });
+});
+
+// ── Remove ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.cart-remove').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const itemId    = this.dataset.itemId;
+        const productId = this.dataset.productId;
+        const row       = document.getElementById('cart-row-' + itemId);
+
+        fetch(this.dataset.url, {
+            method:  'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept':       'application/json',
+            },
+            body: JSON.stringify({ product_id: productId }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.redirect) { window.location.href = data.redirect; return; }
+            if (data.success) {
+                row?.remove();
+                updateNavCount(data.cart_count);
+                updateSummary(data);
+                showToast('Item removed ✓');
+                if (!document.querySelector('.cart-item')) window.location.reload();
+            }
+        })
+        .catch(() => showToast('Something went wrong.'));
+    });
+});
+
+// ── Coupon ────────────────────────────────────────────────────────────────
+document.getElementById('couponApplyBtn')?.addEventListener('click', function () {
+    const code = document.getElementById('couponCode').value.trim().toUpperCase();
+    if (!code) { showToast('Enter a coupon code'); return; }
+    showToast(code === 'ETTH10' ? 'Coupon applied! 10% off ✓' : 'Invalid coupon code');
+});
+
+// ── Checkout → Razorpay ───────────────────────────────────────────────────
+document.getElementById('checkoutBtn')?.addEventListener('click', function () {
+    const btn = this;
+    btn.disabled    = true;
+    btn.textContent = 'Please wait…';
+
+    fetch('{{ route("order.cart.razorpay.create") }}', {
+        method:  'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept':       'application/json',
+        },
+        body: JSON.stringify({}),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.redirect) { window.location.href = data.redirect; return; }
+        if (!data.success) {
+            showToast(data.message || 'Failed to initiate payment.');
+            btn.disabled    = false;
+            btn.textContent = 'Proceed to Checkout';
+            return;
+        }
+
+        const options = {
+            key         : data.key,
+            amount      : data.amount,
+            currency    : data.currency,
+            name        : 'Etthnicoast',
+            description : data.product_name,
+            order_id    : data.razorpay_order_id,
+            prefill: {
+                name  : '{{ addslashes(auth("frontend")->user()?->name ?? "") }}',
+                email : '{{ addslashes(auth("frontend")->user()?->email ?? "") }}',
+            },
+            theme: { color: '#07203F' },
+
+            handler: function (response) {
+                fetch('{{ route("order.cart.verify") }}', {
+                    method:  'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept':       'application/json',
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id   : response.razorpay_order_id,
+                        razorpay_payment_id : response.razorpay_payment_id,
+                        razorpay_signature  : response.razorpay_signature,
+                    }),
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        window.location.href = res.redirect;
+                    } else {
+                        showToast(res.message || 'Payment verification failed.');
+                        btn.disabled    = false;
+                        btn.textContent = 'Proceed to Checkout';
+                    }
+                })
+                .catch(() => {
+                    showToast('Something went wrong.');
+                    btn.disabled    = false;
+                    btn.textContent = 'Proceed to Checkout';
+                });
+            },
+
+            modal: {
+                ondismiss: function () {
+                    btn.disabled    = false;
+                    btn.textContent = 'Proceed to Checkout';
+                }
+            }
+        };
+
+        new Razorpay(options).open();
+    })
+    .catch(() => {
+        showToast('Something went wrong.');
+        btn.disabled    = false;
+        btn.textContent = 'Proceed to Checkout';
+    });
+});
+</script>
+@endpush
+
 @endsection

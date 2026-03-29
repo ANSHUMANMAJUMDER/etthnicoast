@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CategoryTypesController;
@@ -25,19 +26,32 @@ use App\Http\Controllers\OurBestSellerController;
 use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\Frontend\ReviewController;
 use App\Http\Controllers\EtthnicoastWorldController;
+use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\OurValuedPartnerController;
 use App\Http\Controllers\ShopTheLookController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\AuthController as FrontEndAuthController;
+use App\Http\Controllers\Frontend\BannerCollectionController;
+use App\Http\Controllers\Frontend\CollectionController;
 use App\Http\Controllers\Frontend\OrderController;
+use App\Http\Controllers\Frontend\SearchController;
+use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\HomeCustomerReviewController;
+use App\Http\Controllers\StaticPageController;
+use App\Http\Controllers\TabCategoryController;
+
+ use App\Http\Controllers\Frontend\ProfileController;
+ 
 // Route::get('/', function () {
 
 //     return view('frontend.index');
 // });
-Route::get('/',[FrontendHomeController::class,'index'])->name('frontend.index');
 
+Route::get('/my-profile',[ProfileController::class,'index'])->name('frontend.profile');
+Route::get('collection/{slug?}',[CollectionController::class,'index'])->name('collection.show');
+Route::get('/',[FrontendHomeController::class,'index'])->name('frontend.index');
+Route::get('/search/ajax', [SearchController::class, 'ajax'])->name('search.ajax');
 //   Route::get('/frontend/login',function(){   
    
 //         return view('frontend.login');
@@ -48,7 +62,16 @@ Route::post('/user/login',[FrontEndAuthController::class,'login_store'])->name('
 Route::get('/user/register',[FrontEndAuthController::class,'register'])->name('frontend.register');
 Route::post('/user/register',[FrontEndAuthController::class,'register_store'])->name('frontend.register.store');
 
+Route::get('/collections/{type}', [BannerCollectionController::class, 'show'])
+    ->name('collections.show')
+    ->where('type', '[a-z_]+');
 
+
+Route::get('about-us',[AboutController::class,'about_us'])->name('frontend.about');
+Route::get('why-us',[AboutController::class,'why_us'])->name('frontend.why_us');
+Route::get('chat-with-us',[AboutController::class,'chat_with_us'])->name('frontend.chat_with_us');
+Route::get('animal-welfare',[AboutController::class,'animal_welfare'])->name('frontend.animal_welfare');
+Route::post('contact', [AboutController::class, 'contact_store'])->name('frontend.contact.store');
     Route::get('/frontend/register',function(){
         return view('frontend.register');
     })->name('frontend.register');
@@ -65,16 +88,34 @@ Route::post('/user/register',[FrontEndAuthController::class,'register_store'])->
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 
-Route::middleware('ethnicoast_user')->group(function () {
-    Route::post('/cart',         [CartController::class, 'store'])->name('cart.store');
-    Route::delete('/cart',       [CartController::class, 'destroy'])->name('cart.destroy');
+
+    Route::middleware('auth:frontend')->group(function () {
+    Route::get('/wishlist',              [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle',      [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/remove',    [WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::post('/wishlist/move-to-cart',[WishlistController::class, 'moveToCart'])->name('wishlist.moveToCart');
 });
 
-// Route::middleware('ethnicoast_user')->group(function () {
+Route::get('/cart',[CartController::class, 'index'])->name('frontend.cart');
+Route::middleware('auth:frontend')->group(function () {
+    Route::post('/cart',           [CartController::class, 'store'])->name('cart.store');
+    Route::delete('/cart',         [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::patch('/cart/quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
+});
+
+
+Route::middleware('auth:frontend')->group(function () {
     Route::post('/order/razorpay',       [OrderController::class, 'createRazorpayOrder'])->name('order.razorpay.create');
     Route::post('/order/verify',         [OrderController::class, 'verifyAndStore'])->name('order.verify');
-// });
-    // ── Similar Items ─────────────────────────────────────────────────────────────
+    Route::post('/order/cart/razorpay',  [OrderController::class, 'createCartRazorpayOrder'])->name('order.cart.razorpay.create');
+    Route::post('/order/cart/verify',    [OrderController::class, 'verifyCartAndStore'])->name('order.cart.verify');
+    Route::get('/order/success',         [OrderController::class, 'success'])->name('order.success');
+    
+});
+
+Route::post('/user/logout', [FrontEndAuthController::class, 'logout'])->name('frontend.logout');
+
+// ── Similar Items ─────────────────────────────────────────────────────────────
 Route::post('/products/{product}/similar/sync',          [ProductController::class, 'syncSimilar'])->name('products.similar.sync');
 Route::delete('/products/{product}/similar/{similarProductId}', [ProductController::class, 'removeSimilar'])->name('products.similar.remove');
 Route::get('/products/{product}/similar/data',           [ProductController::class, 'getSimilar'])->name('products.similar.data');
@@ -83,9 +124,6 @@ Route::get('/products/{product}/similar/data',           [ProductController::cla
 Route::post('/products/{product}/complete-look/sync',             [ProductController::class, 'syncCompleteLook'])->name('products.completeLook.sync');
 Route::delete('/products/{product}/complete-look/{lookProductId}',[ProductController::class, 'removeCompleteLook'])->name('products.completeLook.remove');
 Route::get('/products/{product}/complete-look/data',              [ProductController::class, 'getCompleteLook'])->name('products.completeLook.data');
-    Route::get('cart',function(){
-        return view('frontend.cart');
-    })->name('frontend.cart');
 
   Route::get('/women',function (){
         return view('frontend.women');
@@ -299,5 +337,44 @@ Route::prefix('home-customer-reviews')->name('home-customer-reviews.')->group(fu
 });
 
 Route::get('/reports/sales',[ReportController::class,'monthlyReport'])->name('reports.sales');
+
+
+Route::prefix('tab-categories')->name('tab-categories.')->group(function () {
+ 
+    Route::get('/',                              [TabCategoryController::class, 'index'])->name('index');
+    Route::post('/',                             [TabCategoryController::class, 'store'])->name('store');
+    Route::put('/{tabCategory}',                 [TabCategoryController::class, 'update'])->name('update');
+    Route::delete('/{tabCategory}',              [TabCategoryController::class, 'destroy'])->name('destroy');
+    Route::patch('/{tabCategory}/toggle-status', [TabCategoryController::class, 'toggleStatus'])->name('toggleStatus');
+ 
+    // ── Sub-categories ───────────────────────────────────────────────────────
+    Route::get('/{tabCategory}/sub-categories',                          [TabCategoryController::class, 'subCategories'])->name('sub-categories');
+    Route::post('/{tabCategory}/sub-categories',                         [TabCategoryController::class, 'storeSubCategory'])->name('sub-categories.store');
+    Route::put('/{tabCategory}/sub-categories/{subCategory}',            [TabCategoryController::class, 'updateSubCategory'])->name('sub-categories.update');
+    Route::delete('/{tabCategory}/sub-categories/{subCategory}',         [TabCategoryController::class, 'destroySubCategory'])->name('sub-categories.destroy');
+    Route::patch('/{tabCategory}/sub-categories/{subCategory}/toggle',   [TabCategoryController::class, 'toggleSubStatus'])->name('sub-categories.toggleStatus');
+ 
+    // ── Products ─────────────────────────────────────────────────────────────
+    Route::get('/{tabCategory}/products',                    [TabCategoryController::class, 'products'])->name('products');
+    Route::post('/{tabCategory}/products/sync',              [TabCategoryController::class, 'syncProducts'])->name('products.sync');
+    Route::delete('/{tabCategory}/products/{product}/remove',[TabCategoryController::class, 'removeProduct'])->name('products.remove');
+});
+
+Route::prefix('admin/users')->name('admin.users.')->group(function () {
+    Route::get('/',                           [AdminUserController::class, 'index'])->name('index');
+    Route::get('/{user}',                     [AdminUserController::class, 'show'])->name('show');
+    Route::get('/orders/{order}/print-label', [AdminUserController::class, 'printLabel'])->name('print-label');
+    Route::get('/invoices/{invoice}/print',   [AdminUserController::class, 'printInvoice'])->name('print-invoice');
+});
+
+
+
+
+Route::prefix('static-pages')->name('admin.static-pages.')->group(function () {
+    Route::get('/',              [StaticPageController::class, 'index'])->name('index');
+    Route::get('/{slug}/edit',   [StaticPageController::class, 'edit'])->name('edit');
+    Route::put('/{slug}',        [StaticPageController::class, 'update'])->name('update');
+});
+
 });
 });

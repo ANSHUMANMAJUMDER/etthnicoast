@@ -2027,6 +2027,69 @@ h3,
     }
 }
 
+.collection-range-card a {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.collection-nav-btn {
+    position: absolute;
+    top: 111px;                  /* half of 180px image height */
+    transform: translateY(-50%);
+    background: var(--white);
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.collection-nav-btn:hover {
+    background: var(--primary-blue);
+    color: var(--white);
+}
+
+.collection-nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.collection-nav-btn.prev {
+    left: 0px;
+}
+
+.collection-nav-btn.next {
+    right: 0px;
+}
+
+@media (max-width: 1024px) {
+    .collection-nav-btn {
+        top: 75px;              /* half of 150px */
+    }
+}
+
+@media (max-width: 768px) {
+    .collection-nav-btn {
+        top: 70px;              /* half of 140px */
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .collection-nav-btn {
+        display: none;
+    }
+}
 
 /* ===============================
    DIWALI BANNER — ETTHNICOAST
@@ -2569,199 +2632,188 @@ h3,
     }
 }
 
+.new-arrivals-banner {
+    margin-bottom: 0;
+    margin-top: 40px;
+}
 
-        /* ============================================================
-           NEW ARRIVALS BANNER SECTION - STYLE 1 (Modern Banner Style)
-           ============================================================ */
-        /* .new-arrivals-banner {
-            padding: 0;
-            background: var(--white);
-            margin: 4rem 0;
-        } */
-         .new-arrivals-banner {
-                  /* padding-top: 40px; */
-              /* background: var(--white); */
-              margin-bottom: 0;       /* reduce or remove bottom gap */
-              /* padding-bottom: 20px;   keep only needed spacing */
-              margin-top: 40px;
-            }
+.banner-container {
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
 
-        .banner-container {
-            max-width: 100%;
-            margin: 0 auto;
-            position: relative;
-            height: 450px;
-            overflow: hidden;
-            border-radius: 0;
-            display: flex;
-            align-items: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        }
+.banner-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 4rem;
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+}
 
-        .banner-content {
-            position: relative;
-            z-index: 2;
-            padding: 0 4rem;
-            max-width: 50%;
-        }
+.banner-content h2 {
+    font-size: 3.5rem;
+    font-weight: 300;
+    letter-spacing: 5px;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+}
 
-        .banner-content h2 {
-            font-size: 3.5rem;
-            font-weight: 300;
-            letter-spacing: 5px;
-            color: var(--white);
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-        }
+.banner-content p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    color: var(--white);
+    opacity: 0.9;
+}
 
-        .banner-content p {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            margin-bottom: 2.5rem;
-            color: var(--white);
-            opacity: 0.9;
-        }
+.banner-content .cta-button {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+    padding: 1rem 3rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: inline-block;
+}
 
-        .banner-content .cta-button {
-            background: var(--secondary-peach);
-            color: var(--dark-black);
-            border: 2px solid var(--secondary-peach);
-            padding: 1rem 3rem;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
+.banner-content .cta-button:hover {
+    background: var(--white);
+    color: var(--dark-black);
+}
 
-        .banner-content .cta-button:hover {
-            background: transparent;
-            color: var(--secondary-peach);
-            border-color: var(--secondary-peach);
-        }
+.banner-image {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
 
-        .banner-image {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            overflow: hidden;
-        }
+.banner-image::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 25, 60, 0.65);
+    z-index: 1;
+}
 
-        .banner-image::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #0f3460 0%, transparent 50%);
-            z-index: 1;
-        }
+.banner-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
 
-        .banner-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
+.banner-container:hover .banner-image img {
+    transform: scale(1.05);
+}
 
-        .banner-container:hover .banner-image img {
-            transform: scale(1.05);
-        }
+@media (max-width: 1024px) {
+    .banner-container {
+        height: 380px;
+    }
 
-        /* New Arrivals Banner - Tablet */
-        @media (max-width: 1024px) {
-            .banner-container {
-                height: 380px;
-            }
+    .banner-content {
+        padding: 0 3rem;
+    }
 
-            .banner-content {
-                padding: 0 3rem;
-            }
+    .banner-content h2 {
+        font-size: 2.8rem;
+        letter-spacing: 4px;
+    }
 
-            .banner-content h2 {
-                font-size: 2.8rem;
-                letter-spacing: 4px;
-            }
+    .banner-content p {
+        font-size: 1rem;
+    }
+}
 
-            .banner-content p {
-                font-size: 1rem;
-            }
-        }
+@media (max-width: 768px) {
+    .new-arrivals-banner {
+        margin: 2rem 0;
+    }
 
-        /* New Arrivals Banner - Mobile */
-        @media (max-width: 768px) {
-            .new-arrivals-banner {
-                margin: 2rem 0;
-            }
+    .banner-container {
+        height: 320px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    }
 
-            .banner-container {
-                height: 320px;
-                background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-            }
+    .banner-content {
+        padding: 0 2rem;
+        max-width: 100%;
+    }
 
-            .banner-content {
-                padding: 0 2rem;
-                max-width: 100%;
-            }
+    .banner-content h2 {
+        font-size: 2rem;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
 
-            .banner-content h2 {
-                font-size: 2rem;
-                letter-spacing: 2px;
-                margin-bottom: 1rem;
-            }
+    .banner-content p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.8rem;
+    }
 
-            .banner-content p {
-                font-size: 0.9rem;
-                line-height: 1.6;
-                margin-bottom: 1.8rem;
-            }
+    .banner-content .cta-button {
+        padding: 0.85rem 2.2rem;
+        font-size: 0.85rem;
+    }
 
-            .banner-content .cta-button {
-                padding: 0.85rem 2.2rem;
-                font-size: 0.85rem;
-            }
+    .banner-image {
+        width: 100%;
+        opacity: 1;
+    }
 
-            .banner-image {
-                width: 100%;
-                opacity: 0.2;
-            }
+    .banner-image::before {
+        background: rgba(15, 25, 60, 0.65);
+    }
+}
 
-            .banner-image::before {
-                background: linear-gradient(90deg, #0f3460 30%, transparent 100%);
-            }
-        }
+@media (max-width: 480px) {
+    .new-arrivals-banner {
+        margin: 1.5rem 0;
+    }
 
-        /* New Arrivals Banner - Small Mobile */
-        @media (max-width: 480px) {
-            .new-arrivals-banner {
-                margin: 1.5rem 0;
-            }
+    .banner-container {
+        height: 280px;
+    }
 
-            .banner-container {
-                height: 280px;
-            }
+    .banner-content {
+        padding: 0 1.5rem;
+    }
 
-            .banner-content {
-                padding: 0 1.5rem;
-            }
+    .banner-content h2 {
+        font-size: 1.6rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.8rem;
+    }
 
-            .banner-content h2 {
-                font-size: 1.6rem;
-                letter-spacing: 1.5px;
-                margin-bottom: 0.8rem;
-            }
+    .banner-content p {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
 
-            .banner-content p {
-                font-size: 0.85rem;
-                line-height: 1.5;
-                margin-bottom: 1.5rem;
-            }
-
-            .banner-content .cta-button {
-                padding: 0.75rem 2rem;
-                font-size: 0.8rem;
-            }
-        }
+    .banner-content .cta-button {
+        padding: 0.75rem 2rem;
+        font-size: 0.8rem;
+    }
+}
 
         /* ============================================================
            GIFTING BANNER SECTION - STYLE 2 (Full Width Overlay)

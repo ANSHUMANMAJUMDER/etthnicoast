@@ -72,78 +72,8 @@
     <!-- ============================================================
          COLLECTION RANGE SLIDER
          ============================================================ -->
-    {{-- <section class="collection-range-section">
-        <div class="collection-range-container">
-     
-            
-            <div class="collection-cards-wrapper">
-                <div class="collection-cards" id="collectionCards">
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&q=80" alt="Rings">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Rings</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=400&q=80" alt="Pendants">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Pendants</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&q=80" alt="Earrings">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Earrings</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&q=80" alt="Bracelets">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Bracelets</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=400&q=80" alt="Anklets">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Anklets</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80" alt="Sets">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Sets</h3>
-                        </div>
-                    </div>
-                    <div class="collection-range-card">
-                        <div class="collection-card-image">
-                            <img src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&q=80" alt="Men">
-                        </div>
-                        <div class="collection-range-overlay">
-                            <h3>Men in Silver</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-            <div style="text-align: center;">
-                <a href="#collections" class="collection-range-link">Collection Range</a>
-            </div>
-            
-        </div>
-    </section> --}}
-<section class="collection-range-section">
+  
+{{-- <section class="collection-range-section">
     <div class="collection-range-container">
      
         <div class="collection-cards-wrapper">
@@ -151,13 +81,62 @@
 
                 @foreach($collection_ranges as $range)
                     <div class="collection-range-card">
-                        
-                        <a href="{{ $range->url ?? '#' }}">
+
+                 
+                        @php
+                            $rangeSlug = \App\Models\TabCategories::where('slug', \Illuminate\Support\Str::slug($range->name))
+                                ->where('is_active', true)
+                                ->value('slug');
+                        @endphp
+
+                        <a href="{{ $rangeSlug ? route('collection.show', $rangeSlug) : route('collection.show') }}">
+
                             <div class="collection-card-image">
                                 <img src="{{ asset('public/storage/' . $range->image) }}" 
                                      alt="{{ $range->name }}">
                             </div>
 
+                            <div class="collection-range-overlay">
+                                <h3>{{ $range->name }}</h3>
+                            </div>
+
+                        </a>
+                    </div>
+                @endforeach
+
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{{ route('collection.show') }}" class="collection-range-link">
+                Collection Range
+            </a>
+        </div>
+            
+    </div>
+</section> --}}
+<section class="collection-range-section">
+    <div class="collection-range-container">
+
+        <button class="collection-nav-btn prev" onclick="scrollCollection(-1)">  <i class="fas fa-chevron-left"></i></button>
+
+        <div class="collection-cards-wrapper" id="collectionWrapper">
+            <div class="collection-cards" id="collectionCards">
+
+                @foreach($collection_ranges as $range)
+                    <div class="collection-range-card">
+
+                        @php
+                            $rangeSlug = \App\Models\TabCategories::where('slug', \Illuminate\Support\Str::slug($range->name))
+                                ->where('is_active', true)
+                                ->value('slug');
+                        @endphp
+
+                        <a href="{{ $rangeSlug ? route('collection.show', $rangeSlug) : route('collection.show') }}">
+                            <div class="collection-card-image">
+                                <img src="{{ asset('public/storage/' . $range->image) }}"
+                                     alt="{{ $range->name }}">
+                            </div>
                             <div class="collection-range-overlay">
                                 <h3>{{ $range->name }}</h3>
                             </div>
@@ -168,15 +147,19 @@
 
             </div>
         </div>
-        
-        <div style="text-align: center;">
-            <a href="#collections" class="collection-range-link">
-                Collection Range
-            </a>
-        </div>
-            
+
+        <button class="collection-nav-btn next" onclick="scrollCollection(1)">  <i class="fas fa-chevron-right"></i></button>
+
+
     </div>
 </section>
+
+<script>
+    function scrollCollection(direction) {
+        const wrapper = document.getElementById('collectionWrapper');
+        wrapper.scrollBy({ left: direction * 220, behavior: 'smooth' });
+    }
+</script>
     <!-- ============================================================
          GENERAL BANNER
          ============================================================ -->
@@ -189,7 +172,7 @@
                 <div class="general-banner-overlay">
                     <h2>{{ $seasonal_banner->banner_title }}</h2>
                     <p>{{ $seasonal_banner->banner_subtitle }}</p>
-                    <a href="{{ $seasonal_banner->button_link ?? '#' }}" class="cta-button">
+                    <a href="{{ $seasonal_banner->banner_link ?? '#' }}" class="cta-button">
                         {{ $seasonal_banner->button_text ?? 'SHOP NOW' }}
                     </a>
                 </div>

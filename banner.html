@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For Him – Ethnicoast</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:    #b8975a;
+            --gold-lt: #d4b47a;
+            --dark:    #1a1a1a;
+            --mid:     #3d3d3d;
+            --cream:   #f9f6f1;
+            --white:   #ffffff;
+            --border:  #e2ddd6;
+            --red:     #c0392b;
+            --serif:   'Cormorant Garamond', Georgia, serif;
+            --sans:    'Jost', sans-serif;
+            --ease:    0.3s ease;
+        }
+
+        body { font-family: var(--sans); background: var(--cream); color: var(--dark); }
+
+        /* ════════════ NAV (static demo) ════════════ */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(255,255,255,0.97);
+            border-bottom: 1px solid var(--border);
+            height: 64px; display: flex; align-items: center;
+        }
+        .nav__inner {
+            max-width: 1400px; width: 100%; margin: 0 auto;
+            padding: 0 24px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .nav__logo {
+            font-family: var(--serif); font-size: 1.5rem; font-weight: 400;
+            letter-spacing: 0.12em; color: var(--dark); text-decoration: none;
+        }
+        .nav__logo span { color: var(--gold); }
+        .nav__links { display: flex; gap: 28px; list-style: none; }
+        .nav__links a {
+            font-family: var(--sans); font-size: 11px; font-weight: 500;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--mid); text-decoration: none; transition: color var(--ease);
+        }
+        .nav__links a:hover { color: var(--gold); }
+        .nav__icons { display: flex; gap: 18px; align-items: center; }
+        .nav__icon-btn {
+            background: none; border: none; cursor: pointer;
+            color: var(--mid); transition: color var(--ease);
+        }
+        .nav__icon-btn:hover { color: var(--gold); }
+        .nav__cart-count {
+            background: var(--gold); color: #fff;
+            font-size: 9px; font-weight: 700;
+            width: 16px; height: 16px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-left: -8px; margin-top: -10px;
+        }
+
+        /* ════════════ HERO BANNER ════════════ */
+        .hero {
+            position: relative; width: 100%;
+            height: clamp(360px, 58vw, 640px);
+            overflow: hidden; background: var(--dark);
+            margin-top: 64px;
+        }
+        .hero__img {
+            width: 100%; height: 100%; object-fit: cover;
+            object-position: center; display: block;
+            transition: transform 9s ease;
+        }
+        .hero:hover .hero__img { transform: scale(1.05); }
+        .hero__overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(105deg,
+                rgba(10,10,10,0.70) 0%,
+                rgba(10,10,10,0.40) 45%,
+                rgba(10,10,10,0.08) 100%);
+            display: flex; align-items: center;
+        }
+        .hero__content { padding: 0 7vw; max-width: 620px; }
+        .hero__eyebrow {
+            display: inline-block; font-family: var(--sans);
+            font-size: 10px; font-weight: 600; letter-spacing: 0.28em;
+            text-transform: uppercase; color: var(--gold);
+            border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 20px;
+        }
+        .hero__title {
+            font-family: var(--serif); font-size: clamp(2.4rem, 6vw, 4.5rem);
+            font-weight: 300; color: var(--white); line-height: 1.05;
+            margin: 0 0 20px; letter-spacing: 0.03em;
+        }
+        .hero__subtitle {
+            font-family: var(--sans); font-size: clamp(0.85rem, 1.4vw, 1rem);
+            font-weight: 300; color: rgba(255,255,255,0.80);
+            line-height: 1.7; margin: 0 0 36px; max-width: 400px;
+        }
+        .hero__actions { display: flex; gap: 14px; flex-wrap: wrap; }
+        .btn-gold {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: var(--sans); font-size: 10px; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--dark); background: var(--gold);
+            border: 1px solid var(--gold); padding: 14px 30px;
+            text-decoration: none; cursor: pointer;
+            transition: background var(--ease), border-color var(--ease);
+        }
+        .btn-gold:hover { background: var(--gold-lt); border-color: var(--gold-lt); }
+        .btn-ghost {
+            display: inline-flex; align-items: center;
+            font-family: var(--sans); font-size: 10px; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--white); background: transparent;
+            border: 1px solid rgba(255,255,255,0.5); padding: 14px 30px;
+            text-decoration: none; transition: border-color var(--ease), background var(--ease);
+        }
+        .btn-ghost:hover { border-color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); }
+
+        /* ════════════ BREADCRUMB ════════════ */
+        .breadcrumb { background: var(--cream); border-bottom: 1px solid var(--border); padding: 13px 0; }
+        .breadcrumb__inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; gap: 8px;
+            font-family: var(--sans); font-size: 11px; color: var(--mid);
+        }
+        .breadcrumb a { color: var(--mid); text-decoration: none; transition: color var(--ease); }
+        .breadcrumb a:hover { color: var(--gold); }
+        .breadcrumb__sep { color: #ccc; }
+        .breadcrumb__current { color: var(--gold); font-weight: 500; }
+
+        /* ════════════ COLLECTION DESCRIPTION ════════════ */
+        .coll-desc { background: var(--white); border-bottom: 1px solid var(--border); padding: 44px 0 40px; text-align: center; }
+        .coll-desc__inner { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+        .coll-desc__title {
+            font-family: var(--serif); font-size: clamp(1.7rem, 3vw, 2.5rem);
+            font-weight: 400; color: var(--dark); letter-spacing: 0.07em; margin: 0 0 16px;
+        }
+        .coll-desc__divider { width: 44px; height: 1px; background: var(--gold); margin: 0 auto 16px; }
+        .coll-desc__text {
+            font-family: var(--sans); font-size: 0.9rem; font-weight: 300;
+            color: var(--mid); line-height: 1.8; margin: 0;
+        }
+
+        /* ════════════ TOOLBAR ════════════ */
+        .toolbar {
+            background: var(--white); border-bottom: 1px solid var(--border);
+            position: sticky; top: 64px; z-index: 40;
+        }
+        .toolbar__inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 54px; gap: 16px;
+        }
+        .toolbar__left { display: flex; align-items: center; gap: 14px; }
+        .filter-btn {
+            display: flex; align-items: center; gap: 7px;
+            font-family: var(--sans); font-size: 11px; font-weight: 500;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--dark); background: none;
+            border: 1px solid var(--border); padding: 8px 16px;
+            cursor: pointer; transition: border-color var(--ease), color var(--ease);
+        }
+        .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .filter-btn.active { border-color: var(--gold); color: var(--gold); }
+        .product-count { font-family: var(--sans); font-size: 12px; color: var(--mid); }
+        .product-count strong { color: var(--dark); font-weight: 600; }
+        .toolbar__right { display: flex; align-items: center; gap: 10px; }
+        .sort-label { font-family: var(--sans); font-size: 11px; color: var(--mid); }
+        .sort-select {
+            font-family: var(--sans); font-size: 11px; color: var(--dark);
+            border: 1px solid var(--border); background: var(--white);
+            padding: 8px 30px 8px 12px; cursor: pointer;
+            appearance: none; -webkit-appearance: none; outline: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233d3d3d'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center;
+            transition: border-color var(--ease);
+        }
+        .sort-select:focus { border-color: var(--gold); }
+        .view-toggle { display: flex; gap: 2px; }
+        .view-btn {
+            width: 34px; height: 34px; border: 1px solid var(--border); background: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--mid); transition: border-color var(--ease), color var(--ease);
+        }
+        .view-btn:hover, .view-btn.active { border-color: var(--gold); color: var(--gold); }
+
+        /* ════════════ LAYOUT WRAPPER ════════════ */
+        .coll-wrap {
+            max-width: 1400px; margin: 0 auto;
+            padding: 40px 24px 100px;
+            display: flex; gap: 36px; align-items: flex-start;
+        }
+
+        /* ════════════ SIDEBAR ════════════ */
+        .sidebar { width: 230px; flex-shrink: 0; }
+        .sidebar.hidden { display: none; }
+        .filter-group { border-bottom: 1px solid var(--border); padding: 20px 0; }
+        .filter-group:first-child { padding-top: 0; }
+        .filter-group__head {
+            font-family: var(--sans); font-size: 10px; font-weight: 600;
+            letter-spacing: 0.18em; text-transform: uppercase; color: var(--dark);
+            margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; user-select: none;
+        }
+        .filter-group__head span { font-size: 16px; font-weight: 300; color: var(--mid); transition: transform var(--ease); }
+        .filter-group__head.open span { transform: rotate(45deg); }
+        .filter-tags { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; }
+        .filter-tag {
+            font-family: var(--sans); font-size: 11px; color: var(--mid);
+            border: 1px solid var(--border); padding: 5px 12px; cursor: pointer;
+            transition: border-color var(--ease), color var(--ease), background var(--ease);
+            white-space: nowrap; text-decoration: none; display: inline-block;
+        }
+        .filter-tag:hover, .filter-tag.active {
+            border-color: var(--gold); color: var(--gold); background: rgba(184,151,90,0.07);
+        }
+        .price-range { display: flex; align-items: center; gap: 7px; margin-top: 10px; }
+        .price-input {
+            width: 76px; font-family: var(--sans); font-size: 11px;
+            border: 1px solid var(--border); padding: 7px 10px; color: var(--dark);
+            outline: none; transition: border-color var(--ease); background: var(--white);
+        }
+        .price-input:focus { border-color: var(--gold); }
+        .price-sep { font-size: 12px; color: var(--mid); }
+
+        /* ════════════ PRODUCT GRID ════════════ */
+        .products { flex: 1; min-width: 0; }
+        .grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+            transition: grid-template-columns var(--ease);
+        }
+        .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+        /* ════════════ PRODUCT CARD ════════════ */
+        .card {
+            background: var(--white); display: flex; flex-direction: column;
+            overflow: hidden; position: relative;
+            transition: box-shadow var(--ease);
+        }
+        .card:hover { box-shadow: 0 10px 40px rgba(0,0,0,0.10); }
+
+        .card__img-wrap {
+            position: relative; aspect-ratio: 3/4;
+            overflow: hidden; background: var(--cream);
+        }
+        .card__img {
+            width: 100%; height: 100%; object-fit: cover;
+            display: block; transition: transform 0.65s ease;
+        }
+        .card__img-wrap:hover .card__img { transform: scale(1.07); }
+
+        .card__badges {
+            position: absolute; top: 12px; left: 12px;
+            display: flex; flex-direction: column; gap: 5px; z-index: 2;
+        }
+        .badge {
+            font-family: var(--sans); font-size: 8px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 4px 9px; line-height: 1; display: inline-block;
+        }
+        .badge--new  { background: var(--dark); color: #fff; }
+        .badge--sale { background: var(--red);  color: #fff; }
+        .badge--gold { background: var(--gold); color: #fff; }
+
+        .card__wish {
+            position: absolute; top: 10px; right: 10px; z-index: 3;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.92); border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: scale(0.85);
+            transition: opacity var(--ease), transform var(--ease);
+        }
+        .card__img-wrap:hover .card__wish { opacity: 1; transform: scale(1); }
+        .card__wish:hover { background: #fff; }
+        .card__wish svg { width: 15px; height: 15px; stroke: var(--dark); fill: none; stroke-width: 1.5; }
+        .card__wish.active svg { fill: var(--red); stroke: var(--red); }
+
+        .card__quick {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+            font-family: var(--sans); font-size: 9px; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--white); background: var(--dark); border: none;
+            padding: 13px; cursor: pointer;
+            transform: translateY(100%); transition: transform 0.32s ease, background var(--ease);
+        }
+        .card__img-wrap:hover .card__quick { transform: translateY(0); }
+        .card__quick:hover { background: var(--gold); }
+
+        .card__body { padding: 14px 14px 20px; display: flex; flex-direction: column; flex: 1; }
+        .card__cat {
+            font-family: var(--sans); font-size: 9px; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px;
+        }
+        .card__name {
+            font-family: var(--serif); font-size: 1rem; font-weight: 400;
+            color: var(--dark); line-height: 1.3; margin: 0 0 12px;
+            text-decoration: none; display: block; transition: color var(--ease);
+        }
+        .card__name:hover { color: var(--gold); }
+        .card__price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+        .price-now { font-family: var(--sans); font-size: 0.92rem; font-weight: 600; color: var(--dark); }
+        .price-was { font-family: var(--sans); font-size: 0.8rem; color: #b0a898; text-decoration: line-through; }
+        .price-off { font-family: var(--sans); font-size: 9px; font-weight: 700; color: var(--red); }
+
+        /* ════════════ EMPTY STATE ════════════ */
+        .empty { grid-column: 1/-1; text-align: center; padding: 90px 20px; }
+        .empty__icon { font-size: 52px; margin-bottom: 18px; opacity: 0.5; }
+        .empty__title { font-family: var(--serif); font-size: 2rem; color: var(--dark); margin: 0 0 10px; }
+        .empty__text { font-family: var(--sans); font-size: 0.9rem; color: var(--mid); margin: 0 0 28px; line-height: 1.7; }
+
+        /* ════════════ PAGINATION ════════════ */
+        .pagination {
+            display: flex; justify-content: center; align-items: center;
+            gap: 5px; margin-top: 56px; padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .page-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px; font-family: var(--sans); font-size: 12px;
+            color: var(--mid); border: 1px solid var(--border);
+            background: var(--white); text-decoration: none;
+            transition: border-color var(--ease), color var(--ease), background var(--ease);
+            cursor: pointer;
+        }
+        .page-btn:hover, .page-btn.active {
+            border-color: var(--gold); color: var(--gold);
+            background: rgba(184,151,90,0.07);
+        }
+        .page-btn.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+        /* ════════════ RESPONSIVE ════════════ */
+        @media (max-width: 1100px) {
+            .sidebar { display: none !important; }
+            .grid { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+        @media (max-width: 768px) {
+            .nav__links { display: none; }
+            .hero { height: clamp(280px, 72vw, 440px); }
+            .hero__overlay { background: linear-gradient(to bottom, rgba(10,10,10,0.28), rgba(10,10,10,0.72)); }
+            .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1px; }
+            .coll-wrap { padding: 24px 16px 60px; }
+            .view-toggle, .sort-label { display: none; }
+        }
+        @media (max-width: 480px) {
+            .hero__content { padding: 0 20px; }
+            .btn-ghost { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     NAV (demo — replace with your include)
+═════════════════════════════════════════════ -->
+<nav class="nav">
+    <div class="nav__inner">
+        <a href="#" class="nav__logo">ETHNIC<span>OAST</span></a>
+        <ul class="nav__links">
+            <li><a href="#">New Arrivals</a></li>
+            <li><a href="#">For Him</a></li>
+            <li><a href="#">For Her</a></li>
+            <li><a href="#">Collections</a></li>
+            <li><a href="#">Gifts</a></li>
+        </ul>
+        <div class="nav__icons">
+            <button class="nav__icon-btn" aria-label="Search">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </button>
+            <button class="nav__icon-btn" aria-label="Wishlist">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <button class="nav__icon-btn" aria-label="Cart" style="position:relative;display:flex;align-items:flex-start;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span class="nav__cart-count">2</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════
+     HERO BANNER
+     In Blade: src="{{ asset('storage/' . $banner->banner_image) }}"
+═════════════════════════════════════════════ -->
+<section class="hero">
+    <img
+        class="hero__img"
+        src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1600&q=80"
+        alt="For Him – Ethnicoast"
+    />
+    <div class="hero__overlay">
+        <div class="hero__content">
+            <!-- In Blade: {{ strtoupper(str_replace('_',' ',$banner->type)) }} -->
+            <span class="hero__eyebrow">Silver Jewelry</span>
+            <!-- In Blade: {{ $banner->banner_title ?? $banner->title }} -->
+            <h1 class="hero__title">FOR HIM</h1>
+            <!-- In Blade: {{ $banner->banner_subtitle ?? $banner->description }} -->
+            <p class="hero__subtitle">Bold and refined designs crafted for the modern gentleman. Premium 925 sterling silver.</p>
+            <div class="hero__actions">
+                <!-- In Blade: {{ $banner->button_text }} -->
+                <a href="#collection" class="btn-gold">
+                    Explore Collection
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <!-- In Blade: @if($banner->button_text_2) -->
+                <a href="#" class="btn-ghost">Get Guide</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     BREADCRUMB
+═════════════════════════════════════════════ -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="breadcrumb__inner">
+        <a href="#">Home</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="#">Collections</a>
+        <span class="breadcrumb__sep">›</span>
+        <!-- In Blade: {{ $banner->title ?? $banner->banner_title }} -->
+        <span class="breadcrumb__current">For Him</span>
+    </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════
+     COLLECTION DESCRIPTION
+     In Blade: @if($banner->title && $banner->description)
+═════════════════════════════════════════════ -->
+<section class="coll-desc">
+    <div class="coll-desc__inner">
+        <!-- In Blade: {{ $banner->title }} -->
+        <h2 class="coll-desc__title">FOR HIM</h2>
+        <div class="coll-desc__divider"></div>
+        <!-- In Blade: {{ $banner->description }} -->
+        <p class="coll-desc__text">Discover our exclusive collection of silver jewelry designed for the modern gentleman. Each piece combines timeless elegance with contemporary style, crafted to perfection from premium 925 sterling silver.</p>
+    </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     TOOLBAR
+═════════════════════════════════════════════ -->
+<div class="toolbar" id="toolbar">
+    <div class="toolbar__inner">
+        <div class="toolbar__left">
+            <button class="filter-btn" id="filterToggle">
+                <svg width="14" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 14 12"><path d="M1 1h12M3.5 6h7M6 11h2" stroke-linecap="round"/></svg>
+                Filter
+            </button>
+            <!-- In Blade: <strong>{{ $products->total() }}</strong> -->
+            <span class="product-count"><strong id="productCount">12</strong> products</span>
+        </div>
+        <div class="toolbar__right">
+            <span class="sort-label">Sort by:</span>
+            <select class="sort-select" id="sortSelect" aria-label="Sort">
+                <option value="featured">Featured</option>
+                <option value="newest">Newest</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+            </select>
+            <div class="view-toggle">
+                <button class="view-btn active" data-cols="3" title="3 columns">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="0" y="0" width="3" height="3"/><rect x="5" y="0" width="3" height="3"/><rect x="10" y="0" width="3" height="3"/><rect x="0" y="5" width="3" height="3"/><rect x="5" y="5" width="3" height="3"/><rect x="10" y="5" width="3" height="3"/><rect x="0" y="10" width="3" height="3"/><rect x="5" y="10" width="3" height="3"/><rect x="10" y="10" width="3" height="3"/></svg>
+                </button>
+                <button class="view-btn" data-cols="4" title="4 columns">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="0" y="0" width="2" height="3"/><rect x="3.6" y="0" width="2" height="3"/><rect x="7.2" y="0" width="2" height="3"/><rect x="10.8" y="0" width="2" height="3"/><rect x="0" y="5" width="2" height="3"/><rect x="3.6" y="5" width="2" height="3"/><rect x="7.2" y="5" width="2" height="3"/><rect x="10.8" y="5" width="2" height="3"/><rect x="0" y="10" width="2" height="3"/><rect x="3.6" y="10" width="2" height="3"/><rect x="7.2" y="10" width="2" height="3"/><rect x="10.8" y="10" width="2" height="3"/></svg>
+                </button>
+                <button class="view-btn" data-cols="2" title="2 columns">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="0" y="0" width="5.5" height="5.5"/><rect x="7.5" y="0" width="5.5" height="5.5"/><rect x="0" y="7.5" width="5.5" height="5.5"/><rect x="7.5" y="7.5" width="5.5" height="5.5"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     SIDEBAR + PRODUCT GRID
+═════════════════════════════════════════════ -->
+<div class="coll-wrap" id="collection">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar hidden" id="sidebar">
+
+        <div class="filter-group">
+            <div class="filter-group__head open" onclick="toggleGroup(this)">
+                Category <span>+</span>
+            </div>
+            <ul class="filter-tags">
+                <!-- In Blade: @foreach($categories as $cat) <li>...</li> @endforeach -->
+                <li><a class="filter-tag active" href="#">All</a></li>
+                <li><a class="filter-tag" href="#">Rings</a></li>
+                <li><a class="filter-tag" href="#">Chains</a></li>
+                <li><a class="filter-tag" href="#">Bracelets</a></li>
+                <li><a class="filter-tag" href="#">Earrings</a></li>
+                <li><a class="filter-tag" href="#">Pendants</a></li>
+            </ul>
+        </div>
+
+        <div class="filter-group">
+            <div class="filter-group__head open" onclick="toggleGroup(this)">
+                Price Range <span>+</span>
+            </div>
+            <div class="price-range">
+                <input class="price-input" type="number" placeholder="₹ Min" min="0" />
+                <span class="price-sep">–</span>
+                <input class="price-input" type="number" placeholder="₹ Max" min="0" />
+            </div>
+            <button class="filter-tag" style="margin-top:10px;cursor:pointer;">Apply</button>
+        </div>
+
+        <div class="filter-group">
+            <div class="filter-group__head open" onclick="toggleGroup(this)">
+                Material <span>+</span>
+            </div>
+            <ul class="filter-tags">
+                <li><a class="filter-tag active" href="#">All</a></li>
+                <li><a class="filter-tag" href="#">925 Silver</a></li>
+                <li><a class="filter-tag" href="#">Rhodium</a></li>
+                <li><a class="filter-tag" href="#">Oxidised</a></li>
+                <li><a class="filter-tag" href="#">Rose Gold</a></li>
+            </ul>
+        </div>
+
+        <div class="filter-group">
+            <div class="filter-group__head open" onclick="toggleGroup(this)">
+                Availability <span>+</span>
+            </div>
+            <ul class="filter-tags">
+                <li><a class="filter-tag active" href="#">All</a></li>
+                <li><a class="filter-tag" href="#">In Stock</a></li>
+            </ul>
+        </div>
+
+    </aside>
+
+    <!-- PRODUCT GRID -->
+    <main class="products" id="products">
+        <div class="grid" id="grid">
+
+            <!--
+            ════════════════════════════════════════
+            PRODUCT CARDS
+            In Blade: @forelse($products as $product) ... @empty ... @endforelse
+
+            Column mapping to your DB:
+              $product->base_name       → product name
+              $product->base_price      → original price
+              $product->discount_price  → sale price (null if no sale)
+              $product->category->name  → category label
+              $product->id              → for links & wishlist
+              $product->created_at      → to detect "New" badge (within 30 days)
+            ════════════════════════════════════════
+            -->
+
+            <!-- CARD 1 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80" alt="Silver Chain" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--new">New</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Chains</p>
+                    <a class="card__name" href="#">Silver Franco Chain</a>
+                    <div class="card__price">
+                        <span class="price-now">₹3,812.00</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 2 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1573408301185-9519f94ae6a4?w=600&q=80" alt="Men's Ring" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--sale">18% OFF</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Rings</p>
+                    <a class="card__name" href="#">Bold Oxidised Band Ring</a>
+                    <div class="card__price">
+                        <span class="price-now">₹1,290.00</span>
+                        <span class="price-was">₹1,575.00</span>
+                        <span class="price-off">18% off</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 3 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1636200540970-c2a20c99c4de?w=600&q=80" alt="Silver Bracelet" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--new">New</span>
+                        <span class="badge badge--sale">12% OFF</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Bracelets</p>
+                    <a class="card__name" href="#">Infinity & Heart Wristlet with AD</a>
+                    <div class="card__price">
+                        <span class="price-now">₹432.00</span>
+                        <span class="price-was">₹490.00</span>
+                        <span class="price-off">12% off</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 4 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1589207212797-cfd578c00985?w=600&q=80" alt="Pendant" loading="lazy" />
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Butterfly Gold Plated Pendant with AD</a>
+                    <div class="card__price">
+                        <span class="price-now">₹554.00</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 5 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1600721391776-b5cd0e0048f9?w=600&q=80" alt="Ear top" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--gold">Exclusive</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Earrings</p>
+                    <a class="card__name" href="#">Silver with AD Ear Top</a>
+                    <div class="card__price">
+                        <span class="price-now">₹454.20</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 6 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80" alt="Pendant Set" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--sale">30% OFF</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Silver Paw Pendant Set</a>
+                    <div class="card__price">
+                        <span class="price-now">₹24,188.00</span>
+                        <span class="price-was">₹34,554.00</span>
+                        <span class="price-off">30% off</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 7 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1598560917505-59a3ad559071?w=600&q=80" alt="Rose Gold Pendant" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--new">New</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Rose Gold Pendant with AD</a>
+                    <div class="card__price">
+                        <span class="price-now">₹44.21</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 8 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1561828995-aa79a2db86dd?w=600&q=80" alt="Bangle" loading="lazy" />
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Bangles</p>
+                    <a class="card__name" href="#">Temple Design Oxidised Bangle</a>
+                    <div class="card__price">
+                        <span class="price-now">₹875.00</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 9 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=600&q=80" alt="Pendant Set" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--sale">22% OFF</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Silver with AD Pendant Set</a>
+                    <div class="card__price">
+                        <span class="price-now">₹4,089.00</span>
+                        <span class="price-was">₹5,242.00</span>
+                        <span class="price-off">22% off</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 10 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1619119069152-a2b331eb392a?w=600&q=80" alt="Ear Dangler" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--gold">Exclusive</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Earrings</p>
+                    <a class="card__name" href="#">Ear Dangler with Pearl & AD</a>
+                    <div class="card__price">
+                        <span class="price-now">₹3,812.00</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 11 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&q=80" alt="Pendant Set" loading="lazy" />
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Oxidised Silver Pendant Set</a>
+                    <div class="card__price">
+                        <span class="price-now">₹532.22</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- CARD 12 -->
+            <article class="card">
+                <div class="card__img-wrap">
+                    <img class="card__img" src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80" alt="Emerald Pendant" loading="lazy" />
+                    <div class="card__badges">
+                        <span class="badge badge--new">New</span>
+                    </div>
+                    <button class="card__wish" aria-label="Wishlist" onclick="toggleWish(this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </button>
+                    <button class="card__quick" onclick="quickAdd(this)">+ Quick Add</button>
+                </div>
+                <div class="card__body">
+                    <p class="card__cat">Pendants</p>
+                    <a class="card__name" href="#">Pendant Set with Green Emerald & AD</a>
+                    <div class="card__price">
+                        <span class="price-now">₹775.00</span>
+                    </div>
+                </div>
+            </article>
+
+        </div><!-- /.grid -->
+
+        <!-- PAGINATION -->
+        <nav class="pagination" aria-label="Pages">
+            <button class="page-btn disabled">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span class="page-btn" style="border:none;cursor:default;">…</span>
+            <button class="page-btn">8</button>
+            <button class="page-btn">›</button>
+        </nav>
+
+    </main>
+</div><!-- /.coll-wrap -->
+
+
+<script>
+    // ── Filter sidebar toggle ──
+    const filterToggle = document.getElementById('filterToggle');
+    const sidebar      = document.getElementById('sidebar');
+
+    filterToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('hidden');
+        this.classList.toggle('active');
+    });
+
+    // ── Grid column toggle ──
+    const grid = document.getElementById('grid');
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const cols = this.dataset.cols;
+            grid.className = 'grid' + (cols !== '3' ? ' cols-' + cols : '');
+        });
+    });
+
+    // ── Filter tag toggle ──
+    document.querySelectorAll('.filter-tags').forEach(group => {
+        group.addEventListener('click', function (e) {
+            const tag = e.target.closest('.filter-tag');
+            if (!tag) return;
+            e.preventDefault();
+            group.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+        });
+    });
+
+    // ── Filter group collapse ──
+    function toggleGroup(head) {
+        head.classList.toggle('open');
+        const list = head.nextElementSibling;
+        if (list) list.style.display = head.classList.contains('open') ? '' : 'none';
+    }
+
+    // ── Wishlist toggle ──
+    function toggleWish(btn) {
+        btn.classList.toggle('active');
+        // TODO: POST to /wishlist/toggle with product id
+    }
+
+    // ── Quick Add feedback ──
+    function quickAdd(btn) {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Added!';
+        btn.style.background = 'var(--gold)';
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.style.background = '';
+        }, 1800);
+        // TODO: POST to /cart/add with product id
+    }
+
+    // ── Pagination (demo) ──
+    document.querySelectorAll('.pagination .page-btn:not(.disabled)').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (this.textContent === '‹' || this.textContent === '›' || this.textContent === '…') return;
+            document.querySelectorAll('.pagination .page-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>

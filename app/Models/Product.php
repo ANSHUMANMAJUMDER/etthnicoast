@@ -83,4 +83,8 @@ public function carts()
 }
 
 
+public function wishlists() {
+    return $this->hasMany(Wishlist::class);
+}
+
 }

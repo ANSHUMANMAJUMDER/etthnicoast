@@ -97,4 +97,9 @@ class User extends Authenticatable
     //         return redirect()->back()->with('error', 'Failed to Create Account. Please try again.');
     //     }
     // }
+
+
+    public function orders()   { return $this->hasMany(\App\Models\Order::class, 'user_id'); }
+public function wishlists(){ return $this->hasMany(\App\Models\Wishlist::class, 'user_id'); }
+public function invoices() { return $this->hasMany(\App\Models\Invoice::class, 'user_id'); }
 }

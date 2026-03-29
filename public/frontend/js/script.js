@@ -26,26 +26,112 @@
 
 
 // ── Search ────────────────────────────────────────────────────────
+// ── Search ────────────────────────────────────────────────────────
 const searchToggle  = document.getElementById('searchToggle');
 const searchOverlay = document.getElementById('searchOverlay');
 const searchClose   = document.getElementById('searchClose');
 const searchInput   = document.getElementById('searchInput');
+const searchBtn     = document.getElementById('searchBtn');
+const searchResults = document.getElementById('searchResults');
 
+let debounceTimer;
+
+// Open overlay
 searchToggle.addEventListener('click', (e) => {
-  e.preventDefault();
-  searchOverlay.classList.add('active');
-  setTimeout(() => searchInput.focus(), 400);
+    e.preventDefault();
+    searchOverlay.classList.add('active');
+    setTimeout(() => searchInput.focus(), 400);
 });
-searchClose.addEventListener('click', () => {
-  searchOverlay.classList.remove('active');
-  searchInput.value = '';
-});
-searchOverlay.addEventListener('click', (e) => {
-  if (e.target === searchOverlay) {
+
+// Close overlay
+function closeSearch() {
     searchOverlay.classList.remove('active');
     searchInput.value = '';
-  }
+    searchResults.innerHTML = '';
+}
+
+searchClose.addEventListener('click', closeSearch);
+
+searchOverlay.addEventListener('click', (e) => {
+    if (e.target === searchOverlay) closeSearch();
 });
+
+// ESC key closes overlay
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSearch();
+});
+
+// Live typing with debounce
+searchInput.addEventListener('input', function () {
+    const query = this.value.trim();
+    clearTimeout(debounceTimer);
+
+    if (query.length < 2) {
+        searchResults.innerHTML = '';
+        return;
+    }
+
+    debounceTimer = setTimeout(() => doSearch(query), 350);
+});
+
+// Search button click
+searchBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (query.length >= 2) doSearch(query);
+});
+
+// Enter key
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const query = searchInput.value.trim();
+        if (query.length >= 2) doSearch(query);
+    }
+});
+
+// Suggestion chips → fill input and search
+document.querySelectorAll('.search-suggestion-item').forEach((item) => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const query = item.getAttribute('data-query');
+        searchInput.value = query;
+        doSearch(query);
+    });
+});
+
+// AJAX call
+function doSearch(query) {
+    searchResults.innerHTML = '<div class="search-status">Searching...</div>';
+
+   fetch(`${window.searchAjaxUrl}?q=${encodeURIComponent(query)}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(res => res.json())
+    .then(data => renderResults(data))
+    .catch(() => {
+        searchResults.innerHTML = '<div class="search-status">Something went wrong. Please try again.</div>';
+    });
+}
+
+// Render results
+function renderResults(data) {
+    if (!data.length) {
+        searchResults.innerHTML = '<div class="search-status">No results found.</div>';
+        return;
+    }
+
+    searchResults.innerHTML = data.map(item => `
+        <a href="${item.url}" class="search-result-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="search-result-info">
+                <span class="search-result-name">${item.name}</span>
+                <span class="search-result-price">${item.price}</span>
+            </div>
+        </a>
+    `).join('');
+}
 
 
 // ── Navbar scroll + logo swap ─────────────────────────────────────

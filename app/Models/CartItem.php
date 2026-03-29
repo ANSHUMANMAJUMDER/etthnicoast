@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Cart;
 use App\Models\Product;
-use App\Models\ProductVariant as Variant;
+use App\Models\ProductVariant;
 class CartItem extends Model
 {
     protected $fillable = [
@@ -14,18 +14,18 @@ class CartItem extends Model
         'cgst', 'sgst', 'weight', 'total_price'
     ];
 
-    public function cart()
+   public function cart()
     {
         return $this->belongsTo(Cart::class);
     }
-
+ 
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->with('images');
     }
-
+ 
     public function variant()
     {
-        return $this->belongsTo(Variant::class);
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 }

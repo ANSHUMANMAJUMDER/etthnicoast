@@ -4,510 +4,360 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-  :root {
-    --ink:       #0f1923;
-    --ink-soft:  #3a4553;
-    --ink-muted: #8a97a8;
-    --cream:     #faf8f4;
-    --warm:      #f2ede4;
-    --gold:      #c8a96e;
-    --gold-lt:   #e8d9bc;
-    --green:     #2d6a4f;
-    --green-lt:  #d8f3dc;
-    --red:       #c1121f;
-    --red-lt:    #ffe5e5;
-    --border:    rgba(15,25,35,0.1);
-    --shadow:    0 2px 20px rgba(15,25,35,0.07);
+  /* ── All scoped under .rpt so nothing leaks into admin layout ── */
+  .rpt {
+    --ink:      #0f1923;
+    --ink-soft: #3a4553;
+    --ink-mute: #8a97a8;
+    --warm:     #f2ede4;
+    --gold:     #c8a96e;
+    --gold-lt:  #e8d9bc;
+    --green:    #2d6a4f;
+    --green-lt: #d8f3dc;
+    --red:      #c1121f;
+    --bdr:      rgba(15,25,35,0.1);
+    font-family: 'DM Sans', sans-serif;
+    color: #0f1923;
   }
 
- .report-page {
-    font-family: 'DM Sans', sans-serif;
-    color: var(--ink);
-    background: var(--cream);
-    min-height: 100vh;
-    padding: 4rem 7.5rem 4rem;
-}
-  /* ── Top Bar ── */
-  .report-topbar {
+  /* ── Top bar ── */
+  .rpt-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15,25,35,0.1);
   }
-  .report-topbar-left h2 {
+  .rpt-topbar h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: var(--ink);
     margin: 0;
-    letter-spacing: -0.5px;
+    color: #0f1923;
   }
-  .report-topbar-left p {
-    font-size: 0.82rem;
-    color: var(--ink-muted);
-    margin: 4px 0 0;
-    letter-spacing: 0.5px;
-  }
-  .btn-print {
+  .rpt-topbar p { font-size: 0.78rem; color: #8a97a8; margin: 3px 0 0; }
+  .rpt-print-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
-    background: var(--ink);
+    gap: 7px;
+    padding: 8px 16px;
+    background: #0f1923;
     color: #fff;
     border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     font-weight: 500;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: 0.2s;
+    white-space: nowrap;
   }
-  .btn-print:hover { background: var(--gold); color: var(--ink); }
+  .rpt-print-btn:hover { background: #c8a96e; color: #0f1923; }
 
-  /* ── Filter Bar ── */
-  .filter-bar {
+  /* ── Filter bar ── */
+  .rpt-filter {
     display: flex;
     align-items: flex-end;
-    gap: 12px;
-    background: var(--warm);
-    border: 1px solid var(--gold-lt);
-    padding: 16px 20px;
-    margin-bottom: 2.5rem;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f2ede4;
+    border: 1px solid #e8d9bc;
+    padding: 12px 16px;
+    margin-bottom: 1.5rem;
   }
-  .filter-bar .fgroup {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .filter-bar label {
-    font-size: 0.72rem;
+  .rpt-filter .fg { display: flex; flex-direction: column; gap: 4px; }
+  .rpt-filter label {
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--ink-muted);
+    color: #8a97a8;
   }
-  .filter-bar input[type="date"] {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
+  .rpt-filter input[type="date"] {
+    padding: 7px 10px;
+    border: 1px solid rgba(15,25,35,0.15);
     background: #fff;
     font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    color: var(--ink);
+    font-size: 0.8rem;
+    color: #0f1923;
     outline: none;
-    transition: 0.2s;
+    min-width: 140px;
   }
-  .filter-bar input[type="date"]:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
-  }
-  .btn-filter {
-    padding: 8px 20px;
-    background: var(--ink);
+  .rpt-filter input[type="date"]:focus { border-color: #c8a96e; }
+  .rpt-btn-go {
+    padding: 7px 18px;
+    background: #0f1923;
     color: #fff;
     border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     font-weight: 500;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: 0.2s;
   }
-  .btn-filter:hover { background: var(--gold); color: var(--ink); }
-  .btn-reset {
-    padding: 8px 16px;
+  .rpt-btn-go:hover { background: #c8a96e; color: #0f1923; }
+  .rpt-btn-reset {
+    padding: 7px 14px;
     background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--border);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
+    color: #3a4553;
+    border: 1px solid rgba(15,25,35,0.15);
+    font-size: 0.76rem;
     text-decoration: none;
-    transition: 0.2s;
     display: inline-flex;
     align-items: center;
   }
-  .btn-reset:hover { border-color: var(--ink); color: var(--ink); }
+  .rpt-btn-reset:hover { border-color: #0f1923; color: #0f1923; }
 
-  /* ── Summary Cards ── */
-  .summary-grid {
+  /* ── Summary cards ── */
+  .rpt-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-  }
-  .summary-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .summary-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--gold);
-  }
-  .summary-card.green::before { background: var(--green); }
-  .summary-card.red::before   { background: var(--red); }
-  .summary-card .sc-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-bottom: 8px;
-  }
-  .summary-card .sc-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1;
-  }
-  .summary-card .sc-sub {
-    font-size: 0.75rem;
-    color: var(--ink-muted);
-    margin-top: 5px;
-  }
-
-  /* ── Report Header (print title) ── */
-  .report-header {
-    text-align: center;
+    gap: 12px;
     margin-bottom: 1.5rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 2px solid var(--ink);
   }
-  .report-header h3 {
+  @media (max-width: 1280px) { .rpt-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px)  { .rpt-cards { grid-template-columns: 1fr; } }
+
+  .rpt-card {
+    background: #fff;
+    border: 1px solid rgba(15,25,35,0.1);
+    border-top: 3px solid #c8a96e;
+    padding: 14px 16px;
+  }
+  .rpt-card.g { border-top-color: #2d6a4f; }
+  .rpt-card.r { border-top-color: #c1121f; }
+  .rpt-card .lbl { font-size: 0.66rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8a97a8; margin-bottom: 6px; }
+  .rpt-card .val { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: #0f1923; line-height: 1; }
+  .rpt-card .sub { font-size: 0.7rem; color: #8a97a8; margin-top: 4px; }
+
+  /* ── Report title (prints) ── */
+  .rpt-heading {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.875rem;
+    border-bottom: 2px solid #0f1923;
+  }
+  .rpt-heading h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-decoration: underline;
-    text-underline-offset: 5px;
-    margin: 0 0 6px;
-    color: var(--ink);
+    text-underline-offset: 4px;
+    margin: 0 0 4px;
+    color: #0f1923;
   }
-  .report-header p {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--ink-soft);
-    font-family: 'DM Mono', monospace;
-    margin: 0;
-  }
+  .rpt-heading p { font-size: 0.8rem; color: #3a4553; font-family: 'DM Mono', monospace; margin: 0; }
 
   /* ── Table ── */
-  .report-table-wrap {
+  .rpt-table-wrap {
     background: #fff;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+    border: 1px solid rgba(15,25,35,0.1);
     overflow-x: auto;
+    box-shadow: 0 2px 16px rgba(15,25,35,0.06);
   }
-  .report-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-  .report-table thead tr {
-    background: var(--ink);
-    color: #fff;
-  }
-  .report-table thead th {
-    padding: 13px 14px;
+  .rpt-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .rpt-table thead tr { background: #0f1923; color: #fff; }
+  .rpt-table thead th {
+    padding: 10px 11px;
     font-weight: 600;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     white-space: nowrap;
     border: none;
     text-align: center;
   }
-  .report-table thead th:first-child { text-align: left; }
+  .rpt-table thead th:first-child { text-align: left; }
+  .rpt-table tbody tr { border-bottom: 1px solid rgba(15,25,35,0.06); }
+  .rpt-table tbody tr:hover { background: #f2ede4; }
+  .rpt-table tbody tr:last-child { border-bottom: none; }
+  .rpt-table tbody td { padding: 9px 11px; text-align: center; color: #3a4553; vertical-align: middle; }
+  .rpt-table tbody td:first-child { text-align: left; font-family: 'DM Mono', monospace; font-size: 0.74rem; color: #8a97a8; }
+  .rpt-table tbody td.inv  { font-family: 'DM Mono', monospace; font-size: 0.74rem; font-weight: 500; color: #0f1923; }
+  .rpt-table tbody td.amt  { font-weight: 600; color: #0f1923; }
+  .rpt-table tbody td.grs  { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.86rem; color: #0f1923; }
+  .rpt-table tfoot tr      { background: #0f1923; }
+  .rpt-table tfoot td      { padding: 10px 11px; text-align: center; font-weight: 600; font-size: 0.78rem; border: none; color: #fff; }
+  .rpt-table tfoot td:first-child { text-align: right; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: #c8a96e; }
+  .rpt-table tfoot td.tgrs { font-family: 'Playfair Display', serif; font-size: 0.92rem; color: #c8a96e; }
 
-  .report-table tbody tr {
-    border-bottom: 1px solid rgba(15,25,35,0.06);
-    transition: background 0.15s;
-  }
-  .report-table tbody tr:hover { background: var(--warm); }
-  .report-table tbody tr:last-child { border-bottom: none; }
+  .tv { display: inline-block; padding: 2px 6px; font-size: 0.71rem; font-weight: 500; border-radius: 2px; }
+  .tv.cs { background: #d8f3dc; color: #2d6a4f; }
+  .tv.ig { background: rgba(200,169,110,0.15); color: #8a6b2a; }
+  .tv.nl { color: #8a97a8; }
+  .sb { display: inline-block; padding: 2px 6px; background: #f2ede4; border: 1px solid #e8d9bc; font-size: 0.68rem; font-weight: 500; color: #3a4553; }
 
-  .report-table tbody td {
-    padding: 12px 14px;
-    text-align: center;
-    color: var(--ink-soft);
-    vertical-align: middle;
-  }
-  .report-table tbody td:first-child {
-    text-align: left;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--ink-muted);
-  }
-  .report-table tbody td.invoice-no {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .report-table tbody td.amount {
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .report-table tbody td.gross {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--ink);
-  }
+  .rpt-empty { padding: 3rem 2rem; text-align: center; }
+  .rpt-empty i { font-size: 1.8rem; color: #e8d9bc; margin-bottom: 8px; display: block; }
+  .rpt-empty p { color: #8a97a8; font-size: 0.85rem; }
 
-  /* Tax badges */
-  .tax-val {
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 2px;
-  }
-  .tax-val.cgst-sgst {
-    background: var(--green-lt);
-    color: var(--green);
-  }
-  .tax-val.igst {
-    background: rgba(200,169,110,0.15);
-    color: #8a6b2a;
-  }
-  .tax-val.nil {
-    color: var(--ink-muted);
-  }
-
-  /* State badge */
-  .state-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    background: var(--warm);
-    border: 1px solid var(--gold-lt);
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    color: var(--ink-soft);
-  }
-
-  /* ── Totals Row ── */
-  .report-table tfoot tr {
-    background: var(--ink);
-    color: #fff;
-  }
-  .report-table tfoot td {
-    padding: 13px 14px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.82rem;
-    border: none;
-    color: #fff;
-  }
-  .report-table tfoot td:first-child {
-    text-align: right;
-    font-size: 0.72rem;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-family: 'DM Sans', sans-serif;
-  }
-  .report-table tfoot td.total-gross {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    color: var(--gold);
-  }
-
-  /* ── Empty State ── */
-  .empty-state {
-    padding: 4rem 2rem;
-    text-align: center;
-  }
-  .empty-state i {
-    font-size: 2rem;
-    color: var(--gold-lt);
-    margin-bottom: 12px;
-    display: block;
-  }
-  .empty-state p {
-    color: var(--ink-muted);
-    font-size: 0.9rem;
-    margin: 0;
-  }
-
-  /* ── Print ── */
   @media print {
-    .no-print, .filter-bar, .report-topbar .btn-print,
-    .summary-grid, .sidebar, nav, header { display: none !important; }
-    .report-page { padding: 0; background: #fff; }
-    .report-table-wrap { box-shadow: none; border: none; }
-    .report-table thead tr { background: #1a1a1a !important; -webkit-print-color-adjust: exact; }
-    .report-table tfoot tr { background: #1a1a1a !important; -webkit-print-color-adjust: exact; }
-    .report-header { margin-bottom: 1rem; }
+    .no-print, .rpt-filter, .rpt-cards,
+    .rpt-topbar .rpt-print-btn,
+    .sidebar, nav, .header, header { display: none !important; }
+    .rpt { color: #000; }
+    .rpt-table thead tr,
+    .rpt-table tfoot tr {
+      background: #1a1a1a !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
   }
 </style>
 
-<div class="report-page">
+<div class="page-wrapper">
+<div class="content rpt">
 
-  {{-- Top Bar --}}
-  <div class="report-topbar no-print">
-    <div class="report-topbar-left">
+  {{-- Top bar --}}
+  <div class="rpt-topbar no-print">
+    <div>
       <h2>Sales Report</h2>
-      <p>{{ $from->format('d M Y') }} — {{ $to->format('d M Y') }} &nbsp;·&nbsp; {{ $records->count() }} {{ Str::plural('transaction', $records->count()) }}</p>
+      <p>
+        {{ $from->format('d M Y') }} — {{ $to->format('d M Y') }}
+        &nbsp;·&nbsp;
+        {{ $records->count() }} {{ Str::plural('transaction', $records->count()) }}
+      </p>
     </div>
-    <button class="btn-print" onclick="window.print()">
+    <button class="rpt-print-btn" onclick="window.print()">
       <i class="fa fa-print"></i> Print / Export
     </button>
   </div>
 
-  {{-- Filter Bar --}}
-  <form method="GET" class="filter-bar no-print">
-    <div class="fgroup">
+  {{-- Filter --}}
+  <form method="GET" action="{{ route('reports.sales') }}" class="rpt-filter no-print">
+    <div class="fg">
       <label>From</label>
       <input type="date" name="from" value="{{ request('from', $from->format('Y-m-d')) }}">
     </div>
-    <div class="fgroup">
+    <div class="fg">
       <label>To</label>
       <input type="date" name="to" value="{{ request('to', $to->format('Y-m-d')) }}">
     </div>
-    <button type="submit" class="btn-filter">Filter</button>
-    <a href="{{ route('reports.sales') }}" class="btn-reset">Reset</a>
+    <button type="submit" class="rpt-btn-go">Filter</button>
+    <a href="{{ route('reports.sales') }}" class="rpt-btn-reset">Reset</a>
   </form>
 
-  {{-- Summary Cards --}}
+  {{-- Summary cards --}}
   @if($records->isNotEmpty())
-  <div class="summary-grid no-print">
-    <div class="summary-card">
-      <div class="sc-label">Gross Revenue</div>
-      <div class="sc-value">₹{{ number_format($totals['gross_amount'], 0) }}</div>
-      <div class="sc-sub">Total including delivery</div>
+  <div class="rpt-cards no-print">
+    <div class="rpt-card">
+      <div class="lbl">Gross Revenue</div>
+      <div class="val">₹{{ number_format($totals['gross_amount'], 0) }}</div>
+      <div class="sub">Including delivery</div>
     </div>
-    <div class="summary-card green">
-      <div class="sc-label">Total Tax Collected</div>
-      <div class="sc-value">₹{{ number_format($totals['cgst'] + $totals['sgst'] + $totals['igst'], 0) }}</div>
-      <div class="sc-sub">CGST + SGST + IGST</div>
+    <div class="rpt-card g">
+      <div class="lbl">Total Tax</div>
+      <div class="val">₹{{ number_format($totals['cgst'] + $totals['sgst'] + $totals['igst'], 0) }}</div>
+      <div class="sub">CGST + SGST + IGST</div>
     </div>
-    <div class="summary-card">
-      <div class="sc-label">Orders</div>
-      <div class="sc-value">{{ $records->count() }}</div>
-      <div class="sc-sub">{{ $totals['items'] }} total items sold</div>
+    <div class="rpt-card">
+      <div class="lbl">Orders</div>
+      <div class="val">{{ $records->count() }}</div>
+      <div class="sub">{{ $totals['items'] }} items sold</div>
     </div>
-    <div class="summary-card red">
-      <div class="sc-label">Delivery Revenue</div>
-      <div class="sc-value">₹{{ number_format($totals['delivery_cost'], 0) }}</div>
-      <div class="sc-sub">Shipping charges collected</div>
+    <div class="rpt-card r">
+      <div class="lbl">Delivery Revenue</div>
+      <div class="val">₹{{ number_format($totals['delivery_cost'], 0) }}</div>
+      <div class="sub">Shipping collected</div>
     </div>
   </div>
   @endif
 
-  {{-- Printable Report Area --}}
-  <div id="reportArea">
+  {{-- Printable area --}}
+  <div class="rpt-heading">
+    <h3>Etthnicoast Monthly Sells Reports</h3>
+    <p>(From {{ $from->format('d/m/Y') }} &nbsp;To&nbsp; {{ $to->format('d/m/Y') }})</p>
+  </div>
 
-    <div class="report-header">
-      <h3>Etthnicoast Monthly Sells Reports</h3>
-      <p>(From {{ $from->format('d/m/Y') }} &nbsp;To&nbsp; {{ $to->format('d/m/Y') }})</p>
-    </div>
+  <div class="rpt-table-wrap">
+    <table class="rpt-table">
+      <thead>
+        <tr>
+          <th style="text-align:left">Date</th>
+          <th>Invoice No</th>
+          <th>Amount</th>
+          <th>Items</th>
+          <th>Del. State</th>
+          <th>1.5% CGST</th>
+          <th>1.5% SGST</th>
+          <th>3% IGST</th>
+          <th>Del. Cost</th>
+          <th>Gross Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($records as $row)
+        <tr>
+          <td>{{ $row->sale_date->format('d/m/Y') }}</td>
+          <td class="inv">{{ $row->invoice?->invoice_number ?? '—' }}</td>
+          <td class="amt">₹{{ number_format($row->amount, 2) }}</td>
+          <td>{{ $row->quantity }}</td>
+          <td>
+            @if($row->delivery_state)
+              <span class="sb">{{ $row->delivery_state }}</span>
+            @else <span class="tv nl">—</span>
+            @endif
+          </td>
+          <td>
+            @if($row->cgst_amount > 0)
+              <span class="tv cs">₹{{ number_format($row->cgst_amount, 2) }}</span>
+            @else <span class="tv nl">—</span>
+            @endif
+          </td>
+          <td>
+            @if($row->sgst_amount > 0)
+              <span class="tv cs">₹{{ number_format($row->sgst_amount, 2) }}</span>
+            @else <span class="tv nl">—</span>
+            @endif
+          </td>
+          <td>
+            @if($row->igst_amount > 0)
+              <span class="tv ig">₹{{ number_format($row->igst_amount, 2) }}</span>
+            @else <span class="tv nl">—</span>
+            @endif
+          </td>
+          <td>
+            @if($row->delivery_cost > 0)
+              ₹{{ number_format($row->delivery_cost, 2) }}
+            @else <span class="tv nl">—</span>
+            @endif
+          </td>
+          <td class="grs">₹{{ number_format($row->gross_amount, 2) }}</td>
+        </tr>
+        @empty
+        <tr>
+          <td colspan="10">
+            <div class="rpt-empty">
+              <i class="fa-regular fa-folder-open"></i>
+              <p>No records found for the selected period.</p>
+            </div>
+          </td>
+        </tr>
+        @endforelse
+      </tbody>
 
-    <div class="report-table-wrap">
-      <table class="report-table">
-        <thead>
-          <tr>
-            <th style="text-align:left; min-width:90px;">Date</th>
-            <th style="min-width:160px;">Invoice No</th>
-            <th style="min-width:100px;">Amount</th>
-            <th style="min-width:70px;">Items'</th>
-            <th style="min-width:120px;">Del. States</th>
-            <th style="min-width:90px;">1.5% CGST</th>
-            <th style="min-width:90px;">1.5% SGST</th>
-            <th style="min-width:90px;">3% IGST</th>
-            <th style="min-width:100px;">Delivery Cost</th>
-            <th style="min-width:130px;">Gross Sells Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($records as $row)
-          <tr>
-            <td>{{ $row->sale_date->format('d/m/Y') }}</td>
-            <td class="invoice-no">{{ $row->invoice?->invoice_number ?? '—' }}</td>
-            <td class="amount">₹{{ number_format($row->amount, 2) }}</td>
-            <td>{{ $row->quantity }}</td>
-            <td>
-              @if($row->delivery_state)
-                <span class="state-badge">{{ $row->delivery_state }}</span>
-              @else
-                <span class="tax-val nil">—</span>
-              @endif
-            </td>
-            <td>
-              @if($row->cgst_amount > 0)
-                <span class="tax-val cgst-sgst">₹{{ number_format($row->cgst_amount, 2) }}</span>
-              @else
-                <span class="tax-val nil">—</span>
-              @endif
-            </td>
-            <td>
-              @if($row->sgst_amount > 0)
-                <span class="tax-val cgst-sgst">₹{{ number_format($row->sgst_amount, 2) }}</span>
-              @else
-                <span class="tax-val nil">—</span>
-              @endif
-            </td>
-            <td>
-              @if($row->igst_amount > 0)
-                <span class="tax-val igst">₹{{ number_format($row->igst_amount, 2) }}</span>
-              @else
-                <span class="tax-val nil">—</span>
-              @endif
-            </td>
-            <td>
-              @if($row->delivery_cost > 0)
-                ₹{{ number_format($row->delivery_cost, 2) }}
-              @else
-                <span class="tax-val nil">—</span>
-              @endif
-            </td>
-            <td class="gross">₹{{ number_format($row->gross_amount, 2) }}</td>
-          </tr>
-          @empty
-          <tr>
-            <td colspan="10">
-              <div class="empty-state">
-                <i class="fa-regular fa-folder-open"></i>
-                <p>No records found for the selected period.</p>
-              </div>
-            </td>
-          </tr>
-          @endforelse
-        </tbody>
+      @if($records->isNotEmpty())
+      <tfoot>
+        <tr>
+          <td colspan="2">Totals</td>
+          <td>₹{{ number_format($totals['amount'], 2) }}</td>
+          <td>{{ $totals['items'] }}</td>
+          <td>—</td>
+          <td>₹{{ number_format($totals['cgst'], 2) }}</td>
+          <td>₹{{ number_format($totals['sgst'], 2) }}</td>
+          <td>₹{{ number_format($totals['igst'], 2) }}</td>
+          <td>₹{{ number_format($totals['delivery_cost'], 2) }}</td>
+          <td class="tgrs">₹{{ number_format($totals['gross_amount'], 2) }}</td>
+        </tr>
+      </tfoot>
+      @endif
+    </table>
+  </div>
 
-        @if($records->isNotEmpty())
-        <tfoot>
-          <tr>
-            <td colspan="2" style="text-align:right;">Total</td>
-            <td>₹{{ number_format($totals['amount'], 2) }}</td>
-            <td>{{ $totals['items'] }}</td>
-            <td>—</td>
-            <td>₹{{ number_format($totals['cgst'], 2) }}</td>
-            <td>₹{{ number_format($totals['sgst'], 2) }}</td>
-            <td>₹{{ number_format($totals['igst'], 2) }}</td>
-            <td>₹{{ number_format($totals['delivery_cost'], 2) }}</td>
-            <td class="total-gross">₹{{ number_format($totals['gross_amount'], 2) }}</td>
-          </tr>
-        </tfoot>
-        @endif
-      </table>
-    </div>
-
-  </div>{{-- end reportArea --}}
-
-</div>{{-- end report-page --}}
+</div>{{-- /content --}}
+</div>{{-- /page-wrapper --}}
 
 @endsection

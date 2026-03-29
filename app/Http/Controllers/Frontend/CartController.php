@@ -7,128 +7,174 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-     public function store(Request $request)
+    // ── Cart page ─────────────────────────────────────────────────────────
+    public function index()
     {
-        if (!Auth::guard('frontend')->check()) {
-            return response()->json([
-                'success'  => false,
-                'redirect' => route('frontend.login'),
-                'message'  => 'Please login to continue.',
-            ], 401);
+        if (!auth('frontend')->check()) {
+            return redirect()->route('frontend.login');
         }
+
+        $userId = auth('frontend')->id();
+
+        // Find cart by user_id only
+        $cart = Cart::where('user_id', $userId)->first();
+
+        if (!$cart) {
+            // No cart yet — show empty state
+            return view('frontend.cart', [
+                'items'    => collect(),
+                'subtotal' => 0,
+                'shipping' => 0,
+                'total'    => 0,
+            ]);
+        }
+
+        $items = CartItem::where('cart_id', $cart->id)
+            ->with(['product.images', 'variant'])
+            ->latest()
+            ->get();
+
+        $subtotal = $items->sum('total_price');
+        $shipping = $subtotal > 0 && $subtotal < 999 ? 99 : 0;
+        $total    = $subtotal + $shipping;
+
+        return view('frontend.cart', compact('items', 'subtotal', 'shipping', 'total'));
+    }
+
+    // ── Add to cart ───────────────────────────────────────────────────────
+    public function store(Request $request)
+    {
+        if (!auth('frontend')->check()) {
+            return response()->json(['redirect' => route('frontend.login')]);
+        }
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'variant_id' => 'nullable|exists:variants,id',
-            'quantity'   => 'integer|min:1|max:100',
+            'variant_id' => 'nullable|exists:product_variants,id',
+            'quantity'   => 'nullable|integer|min:1|max:99',
         ]);
 
-         $userId    = Auth::guard('frontend')->id();
+        $userId    = auth('frontend')->id();
         $productId = $request->product_id;
-        $variantId = $request->variant_id;
-        $quantity  = $request->quantity ?? 1;
-        $totalPrice =0;
+        $variantId = $request->variant_id ?? null;
+        $qty       = $request->quantity ?? 1;
 
         $product = Product::findOrFail($productId);
-        $variant = $variantId ? $product->variants->find($variantId) : null;
+        $price   = $product->base_price;
 
-        // Determine pricing
-        $price         = $variant ? $variant->base_price         : $product->base_price;
-        $discountPrice = $variant ? $variant->discount_price : $product->discount_price;
-        $cgst          = $variant ? $variant->cgst           : $product->cgst;
-        $sgst          = $variant ? $variant->sgst           : $product->sgst;
-        $weight        = $variant ? $variant->weight         : $product->weight;
+        // Get or create the user's cart — only match on user_id
+        $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
-        $effectivePrice = $discountPrice ?? $price;
-        $totalPrice     = $effectivePrice * $quantity;
+        // Check if this product+variant already in cart
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $productId)
+            ->where('variant_id', $variantId)
+            ->first();
 
-        DB::transaction(function () use (
-            $userId, $productId, $variantId, $quantity,
-            $price, $discountPrice, $cgst, $sgst, $weight,$totalPrice
-        ) {
-            // Get or create cart for user
-            $cart = Cart::firstOrCreate(
-                ['user_id' => $userId, 'product_id' => $productId, 'variant_id' => $variantId],
-                ['quantity' => 0]
-            );
+        if ($cartItem) {
+            $cartItem->quantity   += $qty;
+            $cartItem->total_price = $cartItem->quantity * $price;
+            $cartItem->save();
+        } else {
+            CartItem::create([
+                'cart_id'        => $cart->id,
+                'product_id'     => $productId,
+                'variant_id'     => $variantId,
+                'quantity'       => $qty,
+                'price'          => $price,
+                'discount_price' => $product->compare_price ?? null,
+                'total_price'    => $qty * $price,
+            ]);
+        }
 
-            // Update cart quantity
-            $cart->increment('quantity', $quantity);
-
-            // Check if cart item exists
-            $cartItem = CartItem::where('cart_id', $cart->id)
-                ->where('product_id', $productId)
-                ->where('variant_id', $variantId)
-                ->first();
-
-            if ($cartItem) {
-                // Update existing item
-                $cartItem->quantity   += $quantity;
-                $cartItem->total_price = ($cartItem->discount_price ?? $cartItem->price) * $cartItem->quantity;
-                $cartItem->save();
-            } else {
-                // Create new cart item
-                CartItem::create([
-                    'cart_id'        => $cart->id,
-                    'product_id'     => $productId,
-                    'variant_id'     => $variantId,
-                    'quantity'       => $quantity,
-                    'price'          => $price,
-                    'discount_price' => $discountPrice,
-                    'cgst'           => $cgst,
-                    'sgst'           => $sgst,
-                    'weight'         => $weight,
-                    'total_price'    => $totalPrice,
-                ]);
-            }
-        });
+        $cartCount = CartItem::where('cart_id', $cart->id)->sum('quantity');
 
         return response()->json([
             'success'    => true,
-            'message'    => 'Added to cart.',
-            'cart_count' => $this->getCartCount($userId),
+            'cart_count' => $cartCount,
+            'message'    => 'Added to cart',
         ]);
     }
 
-
-        public function destroy(Request $request)
+    // ── Remove item ───────────────────────────────────────────────────────
+    public function destroy(Request $request)
     {
+        if (!auth('frontend')->check()) {
+            return response()->json(['redirect' => route('frontend.login')]);
+        }
+
+        $request->validate(['product_id' => 'required|exists:products,id']);
+
+        $cart = Cart::where('user_id', auth('frontend')->id())->first();
+
+        if ($cart) {
+            CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $request->product_id)
+                ->when($request->variant_id, fn($q) => $q->where('variant_id', $request->variant_id))
+                ->delete();
+        }
+
+        $cartCount = 0;
+        $cartTotal = 0;
+        $shipping  = 0;
+
+        if ($cart) {
+            CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $request->product_id)
+                ->when($request->variant_id, fn($q) => $q->where('variant_id', $request->variant_id))
+                ->delete();
+
+            $remaining = CartItem::where('cart_id', $cart->id)->get();
+            $cartCount = (int) $remaining->sum('quantity');
+            $cartTotal = (float) $remaining->sum('total_price');
+            $shipping  = $cartTotal > 0 && $cartTotal < 999 ? 99.0 : 0.0;
+        }
+
+        return response()->json([
+            'success'     => true,
+            'cart_count'  => $cartCount,
+            'cart_total'  => round($cartTotal, 2),
+            'shipping'    => round($shipping, 2),
+            'grand_total' => round($cartTotal + $shipping, 2),
+        ]);
+    }
+
+    // ── Update quantity ───────────────────────────────────────────────────
+    public function updateQuantity(Request $request)
+    {
+        if (!auth('frontend')->check()) {
+            return response()->json(['redirect' => route('frontend.login')]);
+        }
+
         $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'variant_id' => 'nullable|exists:variants,id',
+            'cart_item_id' => 'required|exists:cart_items,id',
+            'quantity'     => 'required|integer|min:1|max:99',
         ]);
 
-         $userId    = Auth::guard('frontend')->id();
-        $productId = $request->product_id;
-        $variantId = $request->variant_id;
+        $cart = Cart::where('user_id', auth('frontend')->id())->firstOrFail();
 
-        DB::transaction(function () use ($userId, $productId, $variantId) {
-            $cart = Cart::where('user_id', $userId)
-                ->where('product_id', $productId)
-                ->where('variant_id', $variantId)
-                ->first();
+        $cartItem = CartItem::where('id', $request->cart_item_id)
+            ->where('cart_id', $cart->id)
+            ->firstOrFail();
 
-            if ($cart) {
-                // cascadeOnDelete removes cart_items automatically
-                $cart->items->delete();
-                $cart->delete();
-            }
-        });
+        $cartItem->quantity    = $request->quantity;
+        $cartItem->total_price = $cartItem->quantity * $cartItem->price;
+        $cartItem->save();
+
+        $allItems  = CartItem::where('cart_id', $cart->id)->get();
+        $cartTotal = $allItems->sum('total_price');
+        $shipping  = $cartTotal > 0 && $cartTotal < 999 ? 99 : 0;
 
         return response()->json([
-            'success'    => true,
-            'message'    => 'Removed from cart.',
-            'cart_count' => $this->getCartCount($userId),
+            'success'       => true,
+            'item_subtotal' => round((float) $cartItem->total_price, 2),
+            'cart_total'    => round((float) $cartTotal, 2),
+            'shipping'      => round((float) $shipping, 2),
+            'grand_total'   => round((float) ($cartTotal + $shipping), 2),
+            'cart_count'    => (int) $allItems->sum('quantity'),
         ]);
-    }
-
-    // ── Cart Count helper ────────────────────────────────────
-    private function getCartCount($userId)
-    {
-        return Cart::where('user_id', $userId)->sum('quantity');
     }
 }

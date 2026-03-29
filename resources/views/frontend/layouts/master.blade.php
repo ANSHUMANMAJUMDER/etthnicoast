@@ -19,69 +19,108 @@
     <!-- ============================================================
          Navbar and hero section together
          ============================================================ -->
-   <nav id="navbar">
-        <div class="nav-container">
-            <div class="nav-left">
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-pinterest"></i></a>
-            </div>
+<nav id="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+        </div>
 
-            <div class="nav-center">
-                <a href="/" class="nav-logo">
-                    <img id="navLogo" src="{{ asset('public/assets/etthnicoast.png') }}" alt="Ethnicoast Logo">
-                </a>
-            </div>
+        <div class="nav-center">
+            <a href="{{route('frontend.index')}}" class="nav-logo">
+                <img id="navLogo" src="{{ asset('public/assets/etthnicoast.png') }}" alt="Ethnicoast Logo">
+            </a>
+        </div>
 
-            <div class="nav-right">
-                <a href="#" id="searchToggle"><i class="fas fa-search"></i></a>
-                <a href="./orders.html"><i class="fas fa-shopping-bag"></i></a>
-                <a href="./profile.html"><i class="fas fa-user"></i></a>
-            </div>
+        <div class="nav-right">
+            <a href="#" id="searchToggle"><i class="fas fa-search"></i></a>
+         {{-- replace: <a href="./orders.html"><i class="fas fa-shopping-bag"></i></a> --}}
 
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+@php
+    $cartCount = 0;
+    if (auth('frontend')->check()) {
+        $userCart  = \App\Models\Cart::where('user_id', auth('frontend')->id())->first();
+        $cartCount = $userCart
+            ? \App\Models\CartItem::where('cart_id', $userCart->id)->sum('quantity')
+            : 0;
+    }
+@endphp
 
-            <div class="nav-links-container" id="navLinksContainer">
-               <ul class="nav-links">
+<a href="{{ route('frontend.cart') }}" style="position:relative;">
+    <i class="fas fa-shopping-bag"></i>
+    <span id="cartCount" style="
+        position:absolute; top:-8px; right:-10px;
+        background:var(--secondary-peach); color:var(--primary-blue);
+        font-size:.55rem; font-weight:800; font-family:var(--font-secondary);
+        min-width:17px; height:17px; border-radius:50%;
+        display:{{ $cartCount > 0 ? 'flex' : 'none' }};
+        align-items:center; justify-content:center;
+        padding:0 3px; line-height:1; letter-spacing:0;
+    ">{{ $cartCount ?: '' }}</span>
+</a>
+            {{-- <a href="./profile.html"><i class="fas fa-user"></i></a> --}}
+   <a href="{{ route('frontend.profile') }}"><i class="fas fa-user"></i></a>
+        </div>
 
-    @foreach($navCategories as $category)
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-        @if($category->subCategories->count() > 0)
+        <div class="nav-links-container" id="navLinksContainer">
+            <ul class="nav-links">
 
-            <li class="dropdown">
-                <a href="#">{{ $category->name }}</a>
+                @foreach($navCategories as $category)
 
-                <ul class="dropdown-menu">
-                    @foreach($category->subCategories as $sub)
+                    @if($category->subCategories->count() > 0)
+
+                        <li class="dropdown">
+                            {{-- clicking the parent goes to the full category collection --}}
+                            <a href="{{ route('collection.show', $category->slug) }}">
+                                {{ $category->name }}
+                            </a>
+
+                            <ul class="dropdown-menu">
+                                @foreach($category->subCategories as $sub)
+                                    <li>
+                                        {{-- each sub-category links to its own slug --}}
+                                        <a href="{{ route('collection.show', $sub->slug) }}">
+                                            {{ $sub->name }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+
+                    @else
+
                         <li>
-                            <a href="{{ url('sub-category'.$sub->slug) }}">
-                                {{ $sub->name }}
+                            <a href="{{ route('collection.show', $category->slug) }}">
+                                {{ $category->name }}
                             </a>
                         </li>
-                    @endforeach
-                </ul>
-            </li>
 
-        @else
+                    @endif
 
-            <li>
-                <a href="{{ url('category/'.$category->slug) }}">
-                    {{ $category->name }}
-                </a>
-            </li>
+                @endforeach
 
-        @endif
 
-    @endforeach
+                <li class="dropdown">
+    <a href="#">More at Etthnicoast</a>
 
-</ul>
-            </div>
+    <ul class="dropdown-menu more-at-menu">
+        <li><a href="{{route('frontend.about')}}">About Us</a></li>
+        <li><a href="{{route('frontend.why_us')}}">Why Us</a></li>
+        <li><a href="{{route('frontend.chat_with_us')}}">Chat with Us</a></li>
+        <li><a href="{{route("frontend.animal_welfare")}}">Animal Welfare</a></li>
+    </ul>
+</li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
      @include('frontend.partials.search')
       <main>
@@ -95,41 +134,42 @@
      <footer class="ec-footer">
   <div class="ec-footer-inner">
 
-    <!-- TOP LINKS -->
+    {{-- TOP LINKS --}}
     <div class="ec-footer-grid">
+
       <div class="ec-footer-col">
         <h4>SHOP</h4>
         <ul>
-          <li><a href="#">Rings</a></li>
-          <li><a href="#">Earrings</a></li>
-          <li><a href="#">Necklaces</a></li>
-          <li><a href="#">Bracelets</a></li>
-          <li><a href="#">New Arrivals</a></li>
-          <li><a href="#">Best Sellers</a></li>
-          <li><a href="#">Gift Sets</a></li>
+          <li><a href="{{ route('collection.show', 'rings') }}">Rings</a></li>
+          <li><a href="{{ route('collection.show', 'earrings') }}">Earrings</a></li>
+          <li><a href="{{ route('collection.show', 'necklaces') }}">Necklaces</a></li>
+          <li><a href="{{ route('collection.show', 'bracelets') }}">Bracelets</a></li>
+          <li><a href="{{ route('collection.show', 'new-arrivals') }}">New Arrivals</a></li>
+          <li><a href="{{ route('collection.show', 'best-sellers') }}">Best Sellers</a></li>
+          <li><a href="{{ route('collection.show', 'gift-sets') }}">Gift Sets</a></li>
         </ul>
       </div>
 
       <div class="ec-footer-col">
         <h4>RESOURCES</h4>
         <ul>
-          <li><a href="#">Order Tracking</a></li>
-          <li><a href="#">Shipping</a></li>
-          <li><a href="#">Returns & Exchanges</a></li>
-          <li><a href="#">Size Guide</a></li>
-          <li><a href="#">Jewelry Care</a></li>
-          <li><a href="#">FAQ</a></li>
+          <li><a href="{{ route('frontend.profile') }}">Order Tracking</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Shipping</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Returns & Exchanges</a></li>
+          <li><a href="{{ route('collection.show') }}">Size Guide</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Jewelry Care</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}#faqWrap">FAQ</a></li>
         </ul>
       </div>
 
       <div class="ec-footer-col">
         <h4>SERVICES</h4>
         <ul>
-          <li><a href="#">Custom Orders</a></li>
-          <li><a href="#">Engraving</a></li>
-          <li><a href="#">Gift Cards</a></li>
-          <li><a href="#">Bulk Gifting</a></li>
-          <li><a href="#">Store Pickup</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Custom Orders</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Engraving</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Gift Cards</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Bulk Gifting</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Store Pickup</a></li>
         </ul>
       </div>
 
@@ -147,28 +187,28 @@
       <div class="ec-footer-col">
         <h4>ABOUT US</h4>
         <ul>
-          <li><a href="#">Our Story</a></li>
-          <li><a href="#">Craftsmanship</a></li>
-          <li><a href="#">Sustainability</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="{{ route('frontend.about') }}">Our Story</a></li>
+          <li><a href="{{ route('frontend.why_us') }}">Why Us</a></li>
+          <li><a href="{{ route('frontend.animal_welfare') }}">Animal Welfare</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Contact Us</a></li>
+          <li><a href="{{ route('frontend.chat_with_us') }}">Chat With Us</a></li>
         </ul>
       </div>
+
     </div>
 
-    <!-- BOTTOM BAR -->
+    {{-- BOTTOM BAR --}}
     <div class="ec-footer-bottom">
       <div class="ec-footer-brand">ETTHNICOAST</div>
 
       <div class="ec-footer-meta">
-        <a href="#" class="ec-footer-country">INDIA</a>
+        <span class="ec-footer-country">INDIA</span>
         <span class="ec-dot">•</span>
-        <a href="#" class="ec-footer-lang">English</a>
+        <span class="ec-footer-lang">English</span>
         <span class="ec-dot">•</span>
-        <span class="ec-footer-copy">© ALL RIGHTS RESERVED. 2026 ETTHNICOAST</span>
+        <span class="ec-footer-copy">© ALL RIGHTS RESERVED. {{ date('Y') }} ETTHNICOAST</span>
       </div>
 
-      <!-- no social icons (as requested) -->
       <div class="ec-footer-spacer"></div>
     </div>
 
